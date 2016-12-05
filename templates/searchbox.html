@@ -1,0 +1,20 @@
+<div flex="50">
+  <md-autocomplete id="searchBox"
+    md-selected-item="searchSelectedItem"
+    md-search-text-change="searchTextChange(searchText)"
+    md-search-text="searchText"
+    md-selected-item-change="searchSelectedItemChange(item)"
+    md-items="item in searchResults"
+    md-item-text="item.title"
+    md-min-length="2"
+    placeholder="Search"
+    md-menu-class="autocomplete-custom-template">
+    <md-item-template>
+      <span layout="row" layout-wrap>
+        <img ng-src="{{item.picture}}"/>
+        <span>{{item.title}}</span>
+      </span>
+    </md-item-template>
+    <md-not-found>nothing</md-not-found>
+  </md-autocomplete>
+</div>

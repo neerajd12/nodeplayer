@@ -1,0 +1,62 @@
+<div ng-show="playLists.length == 0" md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}" flex layout-padding layout-fill layout="column" layout-align="center center">
+  <div ng-show="loading" flex layout-padding layout-fill layout="column" layout-align="center center">
+    <md-progress-circular class="md-accent md-hue-3" md-mode="indeterminate" md-diameter="96"></md-progress-circular>
+  </div>
+  <h1 class="md-display-1" ng-show="!loading">No playlists found</h1>
+  <div layout="row">
+    <md-button ng-show="!loading" class="md-raised md-accent md-hue-3" aria-label="refresh" ng-click="reCheckPlaylists()">
+      <md-tooltip>Refresh</md-tooltip>
+      <ng-md-icon icon="refresh" style="fill:white"></ng-md-icon>
+    </md-button>
+  </div>
+</div>
+<div ng-if="playLists.length > 0" layout-padding md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}">
+  <md-grid-list md-row-height="1:1" md-cols-xs="2" md-cols-sm="3" md-cols-md="3" md-cols-gt-md="4">
+    <md-grid-tile ng-repeat="playListId in playLists" data-id="{{playListId}}" ng-click="goToPlaylist(playListId, $event)" ng-mouseenter="showButtonsId(playListId)" ng-mouseleave="showButtonsId(-1)" class="animated bounceInDown">
+      <img ng-if="arts[playListId].length < 2" src="img/album-placeholder.jpg" ng-src="{{arts[playListId][0]}}" class="md-card-image" alt="album art" style="height:100%;width:100%;">
+      <div ng-if="arts[playListId].length === 2" layout="column" style="height:100%;width:100%;">
+        <div layout="row">
+          <img src="img/album-placeholder.jpg" ng-src="{{arts[playListId][0]}}" style="height:50%;width:50%;"/>
+          <img src="img/album-placeholder.jpg" style="height:50%;width:50%;"/>
+        </div>
+        <div layout="row">
+          <img src="img/album-placeholder.jpg" style="height:50%;width:50%;"/>
+          <img src="img/album-placeholder.jpg" ng-src="{{arts[playListId][1]}}" style="height:50%;width:50%;"/>
+        </div>
+      </div>
+      <div ng-if="arts[playListId].length === 3" layout="column" style="height:100%;width:100%;">
+        <div layout="row">
+          <img src="img/album-placeholder.jpg" ng-src="{{arts[playListId][0]}}" style="height:50%;width:50%;"/>
+          <img src="img/album-placeholder.jpg" ng-src="{{arts[playListId][1]}}" style="height:50%;width:50%;"/>
+        </div>
+        <div layout="row">
+          <img src="img/album-placeholder.jpg" ng-src="{{arts[playListId][2]}}" style="height:50%;width:50%;"/>
+          <img src="img/album-placeholder.jpg" style="height:50%;width:50%;"/>
+        </div>
+      </div>
+      <div ng-if="arts[playListId].length > 3" layout="column" style="height:100%;width:100%;">
+        <div layout="row">
+          <img src="img/album-placeholder.jpg" ng-src="{{arts[playListId][0]}}" style="height:50%;width:50%;"/>
+          <img src="img/album-placeholder.jpg" ng-src="{{arts[playListId][1]}}" style="height:50%;width:50%;"/>
+        </div>
+        <div layout="row">
+          <img src="img/album-placeholder.jpg" ng-src="{{arts[playListId][2]}}" style="height:50%;width:50%;"/>
+          <img src="img/album-placeholder.jpg" ng-src="{{arts[playListId][3]}}" style="height:50%;width:50%;"/>
+        </div>
+      </div>
+      <md-grid-tile-footer class="albumLayover" layout-align="center center" ng-show="mouseOn === playListId">
+        <md-button class="md-fab md-accent md-hue-3" ng-click="addPlaylistToQ(playlistId, $event)" aria-label="Play" ng-if="arts[playListId].length > 0 ">
+          <md-tooltip>Add to Queue</md-tooltip>
+          <ng-md-icon icon="add_to_queue" style="fill:white"></ng-md-icon>
+        </md-button>
+        <md-button class="md-fab md-accent md-hue-3" ng-click="playPlaylist(playlistId, $event)" aria-label="Play" ng-if="arts[playListId].length > 0 ">
+          <md-tooltip>Play</md-tooltip>
+          <ng-md-icon icon="playlist_play" style="fill:white"></ng-md-icon>
+        </md-button>
+      </md-grid-tile-footer>
+      <md-grid-tile-footer class="albumFooter">
+        <h3>{{playListId}}</h3>
+      </md-grid-tile-footer>
+    </md-grid-tile>
+  </md-grid-list>
+</div>

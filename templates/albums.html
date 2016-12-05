@@ -1,0 +1,27 @@
+<div ng-show="!loading && !tiles" flex layout-padding layout-fill layout="column" layout-align="center center" md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}">
+  <h1 class="md-display-1">No albums found</h1>
+  <md-button class="md-fab md-accent md-hue-3" aria-label="refresh" ng-click="reCheckMusic()">
+    <md-tooltip>Refresh</md-tooltip>
+    <ng-md-icon icon="refresh" style="fill:white"></ng-md-icon>
+  </md-button>
+</div>
+<div ng-show="!loading && tiles" layout-padding md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}" >
+  <md-grid-list md-row-height="1:1" md-cols-xs="2" md-cols-sm="3" md-cols-md="3" md-cols-gt-md="4">
+    <md-grid-tile ng-repeat="tile in tiles" data-id="{{tile.id}}" ng-click="showAlbumDetails(tile, $event)" ng-mouseenter="tile.showButton=true" ng-mouseleave="tile.showButton=false" class="animated bounceInDown">
+      <img ng-src="{{tile.picture}}" style="height:100%;width:100%;"/>
+      <md-grid-tile-footer class="albumLayover" layout-align="center center" ng-show="tile.showButton">
+        <md-button class="md-fab md-accent md-hue-3" ng-click="addAlbumToQ(tile.id, $event)" aria-label="Play">
+          <md-tooltip>Add to Queue</md-tooltip>
+          <ng-md-icon icon="add_to_queue" style="fill:white"></ng-md-icon>
+        </md-button>
+        <md-button class="md-fab md-accent md-hue-3" ng-click="playAlbumTracks(tile.id, $event)" aria-label="Play">
+          <md-tooltip>Play</md-tooltip>
+          <ng-md-icon icon="playlist_play" style="fill:white"></ng-md-icon>
+        </md-button>
+      </md-grid-tile-footer>
+      <md-grid-tile-footer class="albumFooter">
+        <h3>{{tile.title}}</h3>
+      </md-grid-tile-footer>
+    </md-grid-tile>
+  </md-grid-list>
+</div>

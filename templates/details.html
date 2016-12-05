@@ -1,0 +1,74 @@
+<div layout="row" layout-sm="column" layout-xs="column" layout-fill ng-controller="detailsViewCtrl">
+  <div id="noDetails" class="mainContent" md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}" ng-if="!coverData.title" flex layout-padding layout-fill layout="column" layout-align="center center">
+    <h1 class="md-display-1">Nothing Here</h1>
+  </div>
+  <div id="detailsCover" md-colors="::{backgroundColor: '{{theme}}-primary-{{background1}}'}" ng-if="coverData.title" layout="column" layout-sm="row" layout-xs="column" layout-align="start center" layout-align-sm="start end" md-whiteframe="15dp">
+    <md-card class="albumImgCard" layout-align="center center" md-whiteframe="15dp">
+      <img ng-if="art.length < 2" src="img/album-placeholder.jpg" ng-src="{{art[0]}}" class="md-card-image" alt="album art">
+      <div ng-if="art.length === 2" layout="column" style="height:100%;width:100%;">
+        <div layout="row">
+          <img src="img/album-placeholder.jpg" ng-src="{{art[0]}}" style="height:50%;width:50%;"/>
+          <img src="img/album-placeholder.jpg" style="height:50%;width:50%;"/>
+        </div>
+        <div layout="row">
+          <img src="img/album-placeholder.jpg" style="height:50%;width:50%;"/>
+          <img src="img/album-placeholder.jpg" ng-src="{{art[1]}}" style="height:50%;width:50%;"/>
+        </div>
+      </div>
+      <div ng-if="art.length === 3" layout="column" style="height:100%;width:100%;">
+        <div layout="row">
+          <img src="img/album-placeholder.jpg" ng-src="{{art[0]}}" style="height:50%;width:50%;"/>
+          <img src="img/album-placeholder.jpg" ng-src="{{art[1]}}" style="height:50%;width:50%;"/>
+        </div>
+        <div layout="row">
+          <img src="img/album-placeholder.jpg" ng-src="{{art[2]}}" style="height:50%;width:50%;"/>
+          <img src="img/album-placeholder.jpg" style="height:50%;width:50%;"/>
+        </div>
+      </div>
+      <div ng-if="art.length > 3" layout="column" style="height:100%;width:100%;">
+        <div layout="row">
+          <img src="img/album-placeholder.jpg" ng-src="{{art[0]}}" style="height:50%;width:50%;"/>
+          <img src="img/album-placeholder.jpg" ng-src="{{art[1]}}" style="height:50%;width:50%;"/>
+        </div>
+        <div layout="row">
+          <img src="img/album-placeholder.jpg" ng-src="{{art[2]}}" style="height:50%;width:50%;"/>
+          <img src="img/album-placeholder.jpg" ng-src="{{art[3]}}" style="height:50%;width:50%;"/>
+        </div>
+      </div>
+    </md-card>
+    <div layout="column" layout-align="center center">
+      <p class="md-subhead" style="line-height: 0px;">{{coverData.title}}</p>
+      <small ng-repeat="item in coverData.info"> {{item.title}}&nbsp;:&nbsp;{{item.val}}</small>
+      <div layout="row" layout-align="space-between center">
+        <md-button ng-repeat="item in coverData.actions" aria-label="{{item.label}}" class="md-fab md-mini md-raised {{item.color}}" ng-click="item.action(trackData)" ng-if="item.visible">
+          <ng-md-icon icon="{{item.icon}}" style="fill:{{item.fill}}"></ng-md-icon>
+          <md-tooltip>{{item.label}}</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+  </div>
+  <md-virtual-repeat-container md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}" class="parentTag" id="detailsList" ng-if="coverData.title && tracks" flex layout="column">
+   <md-list flex>
+     <div md-virtual-repeat="track in tracks" md-on-demand id="{{track.id}}" flex layout="column">
+       <md-list-item class="md-3-line" ng-click="showGridBottomSheet($index)" ng-dblclick="listItemClick('play',track.id)" ng-class="{active: track.fileName == trackPlaying, active: track.title == searchedSong}">
+         <img alt="{{track.title}}" data-ng-src="{{track.picture}}" class="md-avatar"/>
+         <div class="md-list-item-text" layout="column" layout-wrap>
+          <h3 style="color:inherit">{{track.title}}</h3>
+          <h4 style="color:inherit">{{track.artist.toString()}}</h4>
+          <p style="color:inherit">{{track.duration}}</p>
+         </div>
+         <md-button aria-label="track fav button" class="md-icon-button md-secondary {{trackActions.color}}"  ng-click="toggleFav(track, track.id)">
+           <ng-md-icon icon="{{track.favIcon}}" style="fill:{{trackActions[3].fill}}"></ng-md-icon>
+         </md-button>
+         <md-divider ng-if="!$last"></md-divider>
+       </md-list-item>
+       <div layout="row" layout-align="center center" ng-show="clickedTrackId === track.id" class="track_extra_btn_sheet">
+         <md-button ng-repeat="item in trackActions" aria-label="{{item.label}}" class="md-fab md-mini md-raised {{item.color}}" ng-click="item.action(track, track.id)" ng-if="item.visible">
+           <ng-md-icon icon="{{item.icon}}" style="fill:{{item.fill}}" options='{"duration": 100}'></ng-md-icon>
+           <md-tooltip>{{item.label}}</md-tooltip>
+         </md-button>
+       </div>
+     </div>
+   </md-list>
+  </md-virtual-repeat-container>
+</div>

@@ -1,0 +1,39 @@
+<div layout="column" id="mainPlayer" ng-controller="playerCtrl">
+  <div id="musicPlayerDiv" layout="row" layout-align="space-between center" layout-padding layout-fill hide-xs>
+    <img ng-src="{{track.picture}}" src="img/album-placeholder.jpg" ng-click="viewMode.toggle()" style="height:60px;width:60px;cursor:pointer;padding:2px;" alt="track Photo" />
+    <md-button ng-click="playMode.toggle()" aria-label="{{playMode.label}}" class="md-icon-button">
+      <md-tooltip md-direction="top">{{playMode.value}}</md-tooltip>
+      <ng-md-icon icon="{{playMode.icon}}" options='{"duration": 375}' style="fill:{{playMode.fill}}" size="20"></ng-md-icon>
+    </md-button>
+    <div flex>
+      <md-slider ng-disabled="track.duration == 0" ng-model="track.currentTime" min="0" step="1" max="{{track.duration}}" ng-change="updateTrackTime()" class="md-accent md-hue-3" style="cursor:pointer;height:30px;" aria-label="track time"></md-slider>
+      <small>{{track.title || 'press the play button to listen'}}</small>
+      <small style="float:right;" ng-if="track.duration > 1">{{(track.duration/60) | number:2}}</small>
+    </div>
+    <md-button class="md-icon-button" ng-repeat="btn in mediaButtons track by $index" aria-label="{{btn.label}}" ng-click="btn.action()" ng-disabled="track.duration == 0">
+      <md-tooltip md-direction="top">{{btn.label}}</md-tooltip>
+      <ng-md-icon icon="{{btn.icon}}" options='{"duration": 375}' style="fill:{{btn.fill}}"></ng-md-icon>
+    </md-button>
+    <md-slider ng-model="audio.volume" flex="10" class="md-accent md-hue-3" style="padding:0px;cursor:pointer;" min="0" step="0.1" max="1" aria-label="player volume"></md-slider>
+  </div>
+  <div hide-gt-xs layout="row" layout-align="end end">
+    <md-fab-speed-dial class="md-scale md-fab-bottom-right" md-open="fabOpen" md-direction="up">
+      <md-fab-trigger>
+        <md-button aria-label="{{musicControlLabel}}" class="md-fab md-accent md-hue-3">
+          <md-tooltip md-direction="left" >{{musicControlLabel}}</md-tooltip>
+          <ng-md-icon icon="play_circle_fill" style="fill:{{btn.fill}}"></ng-md-icon>
+        </md-button>
+      </md-fab-trigger>
+      <md-fab-actions>
+        <md-button class="md-fab md-accent md-hue-3 md-raised md-mini" ng-repeat="btn in mediaButtons track by $index" aria-label="{{btn.label}}" ng-click="btn.action()" ng-disabled="track.duration == 0">
+          <md-tooltip md-direction="left">{{btn.label}}</md-tooltip>
+          <ng-md-icon icon="{{btn.icon}}" options='{"duration": 375}' style="fill:{{btn.fill}}"></ng-md-icon>
+        </md-button>
+        <md-button class="md-fab md-accent md-hue-3 md-raised md-mini" ng-click="viewMode.toggle()" aria-label="{{viewMode.label}}">
+          <md-tooltip md-direction="left">{{viewMode.label}}</md-tooltip>
+          <ng-md-icon icon="{{viewMode.icon}}" options='{"duration": 375}' style="fill:{{btn.fill}}"></ng-md-icon>
+        </md-button>
+      </md-fab-actions>
+    </md-fab-speed-dial>
+  </div>
+</div>

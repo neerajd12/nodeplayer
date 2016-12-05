@@ -1,0 +1,17 @@
+<div flex layout-fill layout-padding layout="column">
+  <md-card>
+   <md-card-title>
+     <md-card-title-text>
+       <span class="md-headline">Settings</span>
+     </md-card-title-text>
+   </md-card-title>
+   <md-card-content>
+     <div layout-align="start center">
+       <label>Theme</label>
+       <md-select ng-model="$root.theme" ng-change="applyTheme($root.theme)" aria-label="theme slect drop down">
+          <md-option ng-repeat="option in $root.themes" value="{{option}}">{{option}}</md-option>
+       </md-select>
+     </div>
+   </md-card-content>
+ </md-card>
+</div>

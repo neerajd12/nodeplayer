@@ -1,0 +1,26 @@
+{
+  "name": "nodePlayer",
+  "productName": "nodePlayer",
+  "version": "0.1.0",
+  "main": "main.js",
+  "dependencies": {
+    "angular": "^1.5.9",
+    "angular-animate": "^1.5.9",
+    "angular-aria": "^1.5.9",
+    "angular-material": "^1.1.1",
+    "angular-material-icons": "^0.7.1",
+    "angular-messages": "^1.5.9",
+    "angular-route": "^1.5.9",
+    "angularjs": "0.0.1",
+    "angularjs-scroll-glue": "^2.1.0",
+    "chokidar": "^1.6.1",
+    "glob": "^7.1.1",
+    "lunr": "^0.7.2",
+    "mkdirp": "^0.5.1",
+    "musicmetadata": "^2.0.5",
+    "q": "^1.4.1",
+    "svg-morpheus": "^0.3.0",
+    "uuid": "^3.0.0",
+    "watchjs": "0.0.0"
+  }
+}

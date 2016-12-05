@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Skynet</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="node_modules/angular-material/angular-material.min.css">
+    <link rel="stylesheet" href="css/animate.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/roboto.css">
+    <style type="text/css">
+        [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+          display: none !important;
+        }
+    </style>
+  </head>
+  <body layout="row" ng-app="skynetclient" ng-controller="AppCtrl" ng-cloak md-theme="{{theme}}" md-theme-watch>
+    <md-sidenav id="sideNav" md-whiteframe="15dp" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')">
+      <md-toolbar class="md-tall md-hue-2" md-whiteframe="4dp" layout="row" layout-padding layout-margin layout-fill layout-align="start center">
+        <img src="img/user_placeholder.png" class="avatar" alt="Profile Photo" />
+      </md-toolbar>
+      <md-content id="sideNavContent">
+        <md-list>
+          <md-list-item  ng-repeat="item in navLinks" ng-click="item.action()" ng-class="{active: selectedPage == '{{ item.label | lowercase}}'}">
+            <ng-md-icon icon="{{item.icon}}" style="fill:{{btnFill}};margin-right:10px;"></ng-md-icon>
+            <p>{{item.label}}</p>
+          </md-list-item>
+        </md-list>
+      </md-content>
+    </md-sidenav>
+    <div flex layout="column" tabIndex="-1" role="main">
+      <md-toolbar layout="row" class="md-hue-2" md-whiteframe="4dp">
+        <div class="md-toolbar-tools" layout-align="start center">
+          <search-Ui></search-Ui>
+          <md-menu md-position-mode="target-right target">
+            <md-button aria-label="Open demo menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
+              <md-tooltip md-direction="left">Themes</md-tooltip>
+              <ng-md-icon icon="color_lens" style="fill:white"></ng-md-icon>
+            </md-button>
+            <md-menu-content width="4">
+              <md-menu-item ng-repeat="item in themes">
+                <md-button ng-click="applyTheme(item)">
+                    <div layout="row" flex>
+                      <p flex>{{item}}</p>
+                      <ng-md-icon icon="check" ng-if="theme == item"></ng-md-icon>
+                    </div>
+                </md-button>
+              </md-menu-item>
+            </md-menu-content>
+          </md-menu>
+        </div>
+      </md-toolbar>
+      <md-content flex id="content">
+        <div ng-show="loading" flex layout-padding layout-fill layout="column" layout-align="center center">
+          <md-progress-circular class="md-accent md-hue-3" md-mode="indeterminate"></md-progress-circular>
+        </div>
+        <div ng-view class="{{pageClass}}"></div>
+      </md-content>
+      <ng-include src="'templates/player.html'"></ng-include>
+    </div>
+    <script src="node_modules/angular/angular.js"></script>
+    <script src="node_modules/angular-animate/angular-animate.js"></script>
+    <script src="node_modules/angular-aria/angular-aria.js"></script>
+    <script src="node_modules/angular-route/angular-route.min.js"></script>
+    <script src="node_modules/angular-material/angular-material.js"></script>
+    <script src="node_modules/angular-material-icons/angular-material-icons.min.js"></script>
+    <script src="node_modules/angularjs-scroll-glue/src/scrollglue.js"></script>
+    <script src="node_modules/lunr/lunr.min.js"></script>
+    <script src="node_modules/svg-morpheus/compile/minified/svg-morpheus.js"></script>
+    <script src="js/node_services/fileService.js"></script>
+    <script src="js/directives/search.js"></script>
+    <script src="js/services/musicService.js"></script>
+    <script src="js/services/notificationsService.js"></script>
+    <script src="js/controllers/player.js"></script>
+    <script src="js/controllers/albums.js"></script>
+    <script src="js/controllers/musicQueue.js"></script>
+    <script src="js/controllers/playlists.js"></script>
+    <script src="js/controllers/details.js"></script>
+    <script src="js/controllers/settings.js"></script>
+    <script src="js/controllers/app.js"></script>
+    <script src="js/index.js"></script>
+  </body>
+</html>
