@@ -99,7 +99,7 @@
       $mdThemingProvider.theme('warning-toast');
       $mdThemingProvider.alwaysWatchTheme(true);
       $routeProvider
-        .when('/collection', {
+        .when('/albums', {
           templateUrl : 'templates/albums.html',
           controller: 'albumsCtrl',
           resolve: {
@@ -133,7 +133,7 @@
             }
           }
         })
-        .when('/album/:albumId/song/:songName', {
+        .when('/albums/:albumId/song/:songName', {
           templateUrl: 'templates/details.html',
           controller: 'albumsDetailsCtrl',
           resolve: {
@@ -145,7 +145,7 @@
             }
           }
         })
-        .when('/playlist/:playlistId', {
+        .when('/playlists/:playlistId', {
           templateUrl : 'templates/details.html',
           controller: 'playlistDetailsCtrl',
           resolve: {
@@ -158,7 +158,7 @@
           }
         })
         .otherwise({
-          redirectTo: "/collection"
+          redirectTo: "/albums"
         });
     })
     .run(function($rootScope) {

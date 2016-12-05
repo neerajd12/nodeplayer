@@ -14,7 +14,7 @@ angular.module('skynetclient.playlistsModule',[])
     $scope.mouseOn = id;
   };
   $scope.goToPlaylist = function(playlistsId) {
-    $location.path("playlist/"+playlistsId);
+    $location.path("playlists/"+playlistsId);
   };
   $scope.addPlaylistToQ = function(playlistId, event){
     event.stopPropagation();

@@ -18,7 +18,7 @@ angular.module('skynetclient.albumsModule',[])
   };
   $scope.showAlbumDetails = function(album, event) {
     album.showButton=false;
-    $location.path("album/"+album.id+"/song/-0");
+    $location.path("albums/"+album.id+"/song/-0");
   };
   $scope.addAlbumToQ = function(albumId, event){
     event.stopPropagation();

@@ -23,7 +23,7 @@
       </md-toolbar>
       <md-content id="sideNavContent">
         <md-list>
-          <md-list-item  ng-repeat="item in navLinks" ng-click="item.action()" ng-class="{active: selectedPage == '{{ item.label | lowercase}}'}">
+          <md-list-item  ng-repeat="item in navLinks" ng-click="item.action()" ng-class="{active: selectedPage.indexOf('{{ item.label | lowercase}}') > -1}">
             <ng-md-icon icon="{{item.icon}}" style="fill:{{btnFill}};margin-right:10px;"></ng-md-icon>
             <p>{{item.label}}</p>
           </md-list-item>

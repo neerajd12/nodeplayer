@@ -31,10 +31,10 @@ angular.module('skynetclient.app',[])
 
   $scope.navLinks = [
     {
-      label: 'Collection',
+      label: 'Albums',
       icon: 'album',
       action: function() {
-        $location.path('/collection');
+        $location.path('/albums');
       }
     },{
       label: 'Playlists',
