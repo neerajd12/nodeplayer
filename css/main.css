@@ -102,6 +102,6 @@ md-toast.md-warning-toast-theme .md-toast-content, md-toast .md-toast-content {
 }
 
 .highlightSearched {
-  border-left: 6px solid #000000;
+  box-shadow: inset 0px 0px 20px -2px rgba(0,0,0,0.75);
   border-radius: 0;
 }

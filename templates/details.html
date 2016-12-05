@@ -50,7 +50,7 @@
   <md-virtual-repeat-container md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}" class="parentTag" id="detailsList" ng-if="coverData.title && tracks" flex layout="column">
    <md-list flex>
      <div md-virtual-repeat="track in tracks" md-on-demand id="{{track.id}}" flex layout="column">
-       <md-list-item class="md-3-line" ng-click="showGridBottomSheet($index)" ng-dblclick="listItemClick('play',track.id)" ng-class="{active: track.fileName == trackPlaying, active: track.title == searchedSong}">
+       <md-list-item class="md-3-line" ng-click="showGridBottomSheet($index)" ng-dblclick="listItemClick('play',track.id)" ng-class="{active: track.fileName == trackPlaying, highlightSearched: track.title == searchedSong}">
          <img alt="{{track.title}}" data-ng-src="{{track.picture}}" class="md-avatar"/>
          <div class="md-list-item-text" layout="column" layout-wrap>
           <h3 style="color:inherit">{{track.title}}</h3>

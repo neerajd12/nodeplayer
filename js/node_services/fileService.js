@@ -159,7 +159,9 @@ function initMusicCache(callBack) {
         if (err) {
           console.log(err);
         } else {
-          musicData = JSON.parse(data);
+          let mData = JSON.parse(data);
+          musicData['albums'] = mData['albums'];
+          musicData['tracks'] = mData['tracks'];
         }
         deferred.resolve(musicData);
         refreshCache();
