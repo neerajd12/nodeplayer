@@ -3,7 +3,9 @@ angular.module('skynetclient.musicQueueModule',[])
 .controller('musicQueueCtrl', function ($scope, $rootScope, $route, musicQueue, musicService, buttonFactory, coverData, trackData) {
   $scope.coverData = coverData;
   $scope.trackData = trackData;
-  
+  $scope.coverData.actions = buttonFactory.getMusicButtons();
+  $scope.trackActions = buttonFactory.getMusicButtons();
+
   var clearQ = function (trackData, trackId) {
     if (trackId) {
       musicQueue.removeTrack(trackData.fileName);

@@ -3,9 +3,6 @@ angular.module('skynetclient.detailsViewModule',[])
 .controller('detailsViewCtrl',function($scope, $rootScope, musicQueue, musicService) {
   $scope.art = Array.from(new Set($scope.trackData.map(function(tt){return tt.picture})));
 
-  $scope.coverData.actions = buttonFactory.getMusicButtons();
-  $scope.trackActions = buttonFactory.getMusicButtons();
-  
   $scope.toggleFav = function(tracks, trackId) {
     if (trackId) {
       if (tracks.favIcon === 'favorite_border') {
@@ -41,7 +38,7 @@ angular.module('skynetclient.detailsViewModule',[])
 
   $scope.showGridBottomSheet = function(parentIndex) {
     let track = $scope.trackData[parentIndex];
-    if ($scope.trackPlaying.fileName === track.fileName) {
+    if ($scope.trackPlaying && $scope.trackPlaying.fileName === track.fileName) {
       $scope.trackActions[0].visible = false;
     }
     if (musicQueue.getTracks().indexOf(track.fileName) > -1) {

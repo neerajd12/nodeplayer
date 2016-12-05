@@ -13,4 +13,4 @@ A connected music player for desktop built using nodejs and electron
 
 Use <a href="https://github.com/electron-userland/electron-packager">electron-packager</a> to build
 
-electron-packager . --all --version=1.4.0 --out=./build --icon=./img/icon.png
+electron-packager . --all --overwrite --version=1.4.0 --out=./build --icon=./img/icon.png

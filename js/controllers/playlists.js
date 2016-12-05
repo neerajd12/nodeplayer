@@ -36,17 +36,19 @@ angular.module('skynetclient.playlistsModule',[])
   $scope.trackData = trackData;
   $scope.coverData['title'] = $route.current.params.playlistId;
   $scope.coverData['info'] = [];
+  $scope.coverData.actions = buttonFactory.getMusicButtons();
+  $scope.trackActions = buttonFactory.getMusicButtons();
 
-  var deleteFromPlaylist = function (trackData, trackId) {
+  var deleteFromPlaylist = function (tracks, trackId) {
     if (trackId) {
-      let index = trackData.map(function(data){return data.id}).indexOf(trackId);
-      musicService.removeTrackFromPlaylist(trackData[index], $route.current.params.playlistId, true);
+      let index = $scope.trackData.findIndex(function(data){return data.id == trackId});
+      musicService.removeTrackFromPlaylist(tracks, $route.current.params.playlistId, true);
       $scope.trackData.splice(index, 1);
     } else {
-      musicService.removeTracksFromPlaylist(trackData, $route.current.params.playlistId);
+      musicService.removeTracksFromPlaylist(tracks, $route.current.params.playlistId);
     }
     if ($scope.trackData.length < 1) {
-      $route.reload();
+      $location.path('playlists');
     }
   };
 

@@ -30,9 +30,12 @@ angular.module('skynetclient.albumsModule',[])
   };
   setTiles(collection);
 })
-.controller('albumsDetailsCtrl',function($scope, $routeParams, musicQueue, musicService, coverData, buttonFactory, trackData) {
+.controller('albumsDetailsCtrl',function($scope, $routeParams, musicQueue, musicService, buttonFactory, coverData, trackData) {
   $scope.coverData = coverData;
   $scope.trackData = trackData;
+  $scope.coverData.actions = buttonFactory.getMusicButtons();
+  $scope.trackActions = buttonFactory.getMusicButtons();
+
   $scope.searchedSong = $routeParams['songName'];
   if ($scope.searchedSong !== '-0') {
     $scope.trackData.sort(function (a, b) {

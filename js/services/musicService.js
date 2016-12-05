@@ -191,8 +191,7 @@ angular.module('skynetclient.musicServiceModule', [])
     self.setFavMultipleTracks(toUpdate, icon);
   };
   /******************* Playlists ****************** */
-  this.getPlayLists = function(){
-    console.log(getAllMusicData()['tracks']);
+  this.getPlayLists = function() {
     let playlists = getAllMusicData()['tracks'].filter(function(val){if(val.playlists){return val}}).map(function(val){return val.playlists});
     if (playlists.length > 1) {
       return self.getUnique(playlists.reduce(function(a,b){return a.concat(b)}));
