@@ -7,7 +7,9 @@ A connected music player for desktop built using nodejs and electron
 1. Write Tests
 2. Add online accounts
 3. Login and Stream to/from friends
-4. Improve themes support
+4. Improve Desktop Integration
+5. Save music data to db instead of file
+6. Improve themes support
 
 # Build
 

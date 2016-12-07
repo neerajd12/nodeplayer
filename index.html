@@ -34,22 +34,6 @@
       <md-toolbar layout="row" class="md-hue-2" md-whiteframe="4dp">
         <div class="md-toolbar-tools" layout-align="start center">
           <search-Ui></search-Ui>
-          <md-menu md-position-mode="target-right target">
-            <md-button aria-label="Open demo menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
-              <md-tooltip md-direction="left">Themes</md-tooltip>
-              <ng-md-icon icon="color_lens" style="fill:white"></ng-md-icon>
-            </md-button>
-            <md-menu-content width="4">
-              <md-menu-item ng-repeat="item in themes">
-                <md-button ng-click="applyTheme(item)">
-                    <div layout="row" flex>
-                      <p flex>{{item}}</p>
-                      <ng-md-icon icon="check" ng-if="theme == item"></ng-md-icon>
-                    </div>
-                </md-button>
-              </md-menu-item>
-            </md-menu-content>
-          </md-menu>
         </div>
       </md-toolbar>
       <md-content flex id="content">

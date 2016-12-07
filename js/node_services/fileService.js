@@ -291,4 +291,4 @@ function getMusicDir() {
   return musicDir;
 };
 
-setDirs(localStorage['musicHome'] || os.homedir() + path.sep + "Music");
+setMusicDir(localStorage['musicHome'] || os.homedir() + path.sep + "Music");
