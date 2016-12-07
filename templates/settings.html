@@ -1,17 +1,31 @@
-<div flex layout-fill layout-padding layout="column">
-  <md-card>
+<div flex layout-fill layout-padding layout="column" md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}">
+  <md-card md-colors="::{backgroundColor: '{{theme}}-primary-{{background1}}'}" >
    <md-card-title>
      <md-card-title-text>
-       <span class="md-headline">Settings</span>
+       <span class="md-headline">Theme</span>
      </md-card-title-text>
    </md-card-title>
    <md-card-content>
-     <div layout-align="start center">
-       <label>Theme</label>
-       <md-select ng-model="$root.theme" ng-change="applyTheme($root.theme)" aria-label="theme slect drop down">
-          <md-option ng-repeat="option in $root.themes" value="{{option}}">{{option}}</md-option>
-       </md-select>
-     </div>
+     <md-select ng-model="theme" ng-change="applyTheme(theme)" aria-label="theme slect drop down">
+        <md-option ng-repeat="option in themes" value="{{option}}">{{option}}</md-option>
+     </md-select>
    </md-card-content>
  </md-card>
+ <md-card md-colors="::{backgroundColor: '{{theme}}-primary-{{background1}}'}" >
+  <md-card-title>
+    <md-card-title-text>
+      <span class="md-headline">Music Directory</span>
+    </md-card-title-text>
+  </md-card-title>
+  <md-card-content layout="row" layout-align="start center">
+    <md-input-container flex>
+      <input ng-model="musicHome" disabled aria-label="Current Music Directory">
+    </md-input-container>
+    <md-input-container>
+      <md-button type="button" class="md-icon-button" ng-click="selectDirectory()" style="padding:0px;margin-bottom:10px;" aria-label="Edit Music Directory">
+        <ng-md-icon icon="edit" style="fill:{{btnFill}}"></ng-md-icon>
+      </md-button>
+    </md-input-container>
+  </md-card-content>
+</md-card>
 </div>

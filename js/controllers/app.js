@@ -48,13 +48,13 @@ angular.module('skynetclient.app',[])
       action: function() {
         $location.path('/queue');
       }
-    }/*,{
+    },{
       label: 'Settings',
       icon: 'settings',
       action: function() {
         $location.path('/settings');
       }
-    }*/
+    }
   ];
 
   $rootScope.$on("$routeChangeStart", function(event, next, current) {

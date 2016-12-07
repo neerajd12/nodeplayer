@@ -1,5 +1,6 @@
-let os = require('os'),
+const os = require('os'),
 fs = require('fs'),
+path = require('path'),
 mkdirp = require('mkdirp'),
 util = require('util'),
 glob = require("glob"),
@@ -10,21 +11,22 @@ Q = require('q'),
 WatchJS = require("watchjs"),
 log = console.log.bind(console),
 supportedFiles=['mp3','wav'],
-diskWatcher,
-collectionWatcher = WatchJS.watch;
-const musicDir = os.homedir()+"/Music/";
-const dataDir = musicDir+'/.nodeplayerdata/';
-let musicData={
-  "albums":[],
-  "tracks":[]
-};
-let lunrIndex = lunr(function () {
+collectionWatcher = WatchJS.watch,
+lunrIndex = lunr(function () {
   this.field('album')
   this.field('title')
   this.field('artist')
   this.field('genre')
   this.ref('id')
-});
+}),
+{dialog} = require('electron').remote,
+dataDir = os.homedir() + path.sep +'.nodeplayerdata' + path.sep;
+let musicData={
+  "albums":[],
+  "tracks":[]
+},
+musicDir = '',
+diskWatcher;
 mkdirp(dataDir, function (err) {
     if (err) console.error(err)
 });
@@ -269,3 +271,24 @@ function getAllMusicData() {
 function saveMusicDataToFile() {
   writeDataToFile('albums.json', musicData, 'albums updated');
 };
+
+function selectMusicHome() {
+  let selected = dialog.showOpenDialog({properties: ['openDirectory']});
+  if (selected && selected != musicDir) {
+    localStorage['musicHome'] = selected[0];
+    setMusicDir(selected[0]);
+    diskWatcher.close();
+    diskWatcher = undefined;
+    initMusicCache();
+  }
+};
+
+function setMusicDir(music) {
+  musicDir = music + path.sep;
+};
+
+function getMusicDir() {
+  return musicDir;
+};
+
+setDirs(localStorage['musicHome'] || os.homedir() + path.sep + "Music");
