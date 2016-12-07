@@ -126,19 +126,22 @@ angular.module('skynetclient.playerModule', [])
   };
 
   function setTrack(toPlay) {
-    let trk = musicService.getTrackByFileName(toPlay);
-    if (trk) {
-      $scope.track = trk;
-      $scope.track['currentTime'] = 0;
-    } else {
-      $scope.track = {
-        title: '',
-        fileName: '',
-        picture : 'img/album-placeholder.jpg',
-        duration : 0,
-        currentTime: 0
-      };
-    }
+    getTrackByFileName(toPlay).then(function(trk) {
+      if (trk.length > 0) {
+        $scope.track = trk[0];
+        $scope.track['currentTime'] = 0;
+      } else {
+        $scope.track = {
+          title: '',
+          fileName: '',
+          picture : 'img/album-placeholder.jpg',
+          duration : 0,
+          currentTime: 0
+        };
+      }
+    },function(err){
+      console.log(err);
+    });
   };
 
   function clearAudio() {

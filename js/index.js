@@ -104,7 +104,7 @@
           controller: 'albumsCtrl',
           resolve: {
             collection: function(musicService){
-              return musicService.getAlbumData();
+              return getAlbums();
             }
           }
         })

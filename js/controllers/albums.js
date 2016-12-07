@@ -10,7 +10,7 @@ angular.module('skynetclient.albumsModule',[])
   }
   $scope.reCheckMusic = function() {
     $scope.loading = true;
-    musicService.getAlbumData().then(function(data) {
+    getAlbums().then(function(data) {
       setTiles(data);
     },function(err) {
       $scope.loading = false;

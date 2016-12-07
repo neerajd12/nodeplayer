@@ -115,19 +115,6 @@ angular.module('skynetclient.musicServiceModule', [])
   this.searchTracks = function(searchText) {
     return lunrSearchTracks(searchText);
   }
-  this.getAlbumData = function() {
-    let deferred = $q.defer();
-    if(getAllMusicData()['albums'].length > 0){
-      deferred.resolve(getAllMusicData()['albums']);
-    } else {
-      initMusicCache().then(function(data) {
-        deferred.resolve(musicData['albums']);
-      },function(err) {
-        deferred.resolve(musicData['albums']);
-      });
-    }
-    return deferred.promise;
-  };
   /******************* Track ****************** */
   this.getTrackById = function(trackId){
     return getAllMusicData()['tracks'].find(function(trackData){return trackData.id === trackId;});
@@ -135,9 +122,7 @@ angular.module('skynetclient.musicServiceModule', [])
   this.getTracksByIds = function(trackId){
     return getAllMusicData()['tracks'].filter(function(track){return trackId.indexOf(track.id) > -1});
   };
-  this.getTrackByFileName = function(fileName){
-    return getAllMusicData()['tracks'].find(function(trackData){return trackData.fileName === fileName;});
-  };
+  
   this.getTracksByFileName = function(fileNames){
     return getAllMusicData()['tracks'].filter(function(track){return fileNames.indexOf(track.fileName) > -1});
   };

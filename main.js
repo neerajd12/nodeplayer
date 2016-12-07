@@ -4,18 +4,36 @@ const {app} = electron;
 // Module to create native browser window.
 const {BrowserWindow} = electron;
 
+const fileservice = require('./js/node_services/fileService');
+const db = require('./js/node_services/dbService');
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 
 function createWindow() {
   // Create the browser window.
-  win = new BrowserWindow({width: 1200, height: 600, icon:'img/icon.png'/*, frame:false*/});
+  win = new BrowserWindow({width: 1200, height: 600, icon:'img/icon.png'/*, frame:false*/,backgroundColor: '#000000'});
   win.setMenu(null);
   //mainWindow.center();
   // Open the DevTools.
   win.webContents.openDevTools();
   win.loadURL(`file://${__dirname}/index.html`);
+  db.getAlbumCount().then(function(count) {
+    if (count == 0) {
+      fileservice.initMusicCache().then(function(data) {
+         win.webContents.send('initDone', '1234');
+      },function(err) {console.log(err);});
+    } else {
+      console.log(1234);
+      win.webContents.on('did-finish-load', () => {
+        win.webContents.send('initDone', '123');
+      });
+    }
+  },function(err) {
+    console.log(err);
+  });
+
   // Emitted when the window is closed.
   win.on('closed', () => {
     // Dereference the window object, usually you would store windows
