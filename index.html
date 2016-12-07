@@ -56,6 +56,7 @@
     <script src="node_modules/angularjs-scroll-glue/src/scrollglue.js"></script>
     <script src="node_modules/lunr/lunr.min.js"></script>
     <script src="node_modules/svg-morpheus/compile/minified/svg-morpheus.js"></script>
+    <script src="js/node_services/fileserviceWrapper.js"></script>
     <script src="js/directives/search.js"></script>
     <script src="js/services/musicService.js"></script>
     <script src="js/services/notificationsService.js"></script>
@@ -69,27 +70,10 @@
     <script src="js/index.js"></script>
     <script>
       const ipcR = require('electron').ipcRenderer;
-      const fServ = require('electron').remote.require('./js/node_services/fileService');
-      const dialog = require('electron').remote;
       ipcR.on('initDone', (event, message) => {
         console.log(message)
         angular.element(document.querySelector('[ng-controller="AppCtrl"]')).scope().initDone=true;
       });
-      function getAlbums() {
-        return fServ.getDB().getAlbums();
-      };
-      function getTrackByFileName(fileName){
-        return fServ.getDB().getTrackByFileName(fileName);
-      };
-      function selectMusicHome(){
-        let selected = dialog.showOpenDialog({properties: ['openDirectory']});
-        if (selected) {
-          fServ.updateMusicHome(selected[0]);
-        }
-      };
-      function getMusicDir() {
-        return fServ.getMusicDir();
-      };
     </script>
   </body>
 </html>

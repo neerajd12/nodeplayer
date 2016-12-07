@@ -19,6 +19,7 @@ tracks.ensureIndex({ fieldName: 'album', unique: false }, function (err) {if(err
 exports.getConfig = () => {
   return config;
 };
+/******************* Albums ****************** */
 
 exports.getAlbumCount = () => {
   let deferred = Q.defer();
@@ -28,16 +29,6 @@ exports.getAlbumCount = () => {
   });
   return deferred.promise;
 };
-
-exports.getTrackCount = () => {
-  let deferred = Q.defer();
-  tracks.count({}, function (err, count) {
-    if (err) deferred.reject(err);
-    else deferred.resolve(count);
-  });
-  return deferred.promise;
-};
-
 exports.getAlbums = () => {
   let deferred = Q.defer();
   albums.find({},function (err, docs) {
@@ -46,7 +37,65 @@ exports.getAlbums = () => {
   });
   return deferred.promise;
 };
+exports.getAlbumById = (albumId) => {
+  let deferred = Q.defer();
+  albums.findOne({'id': albumId},function (err, docs) {
+    if (err) deferred.reject(err);
+    else deferred.resolve(docs);
+  });
+  return deferred.promise;
+};
+exports.getAlbumByName = (title) => {
+  let deferred = Q.defer();
+  albums.findOne({'title': title},function (err, docs) {
+    if (err) deferred.reject(err);
+    else deferred.resolve(docs);
+  });
+  return deferred.promise;
+};
+exports.getAlbumByTrackId = (trackId) => {
+  let deferred = Q.defer();
+  albums.findOne({'title': title},function (err, docs) {
+    if (err) deferred.reject(err);
+    else deferred.resolve(docs);
+  });
+  return deferred.promise;
+};
+exports.getAlbumByTrackName = (trackId) => {
 
+};
+exports.getAlbumArt = (trackId) => {
+  //return self.getUnique(getTracksByAlbumId(id).map(function(val){return val.picture}));
+};
+exports.insertAlbums = (newAlbums) => {
+  albums.insert(newAlbums, function (err, newDocs) {
+    if(err) console.log(err);
+  });
+};
+exports.addUpdateAlbums = (albumsToAdd) => {
+  albumsToAdd.forEach(function(album) {
+    albums.update({ title: album.title }, album, { upsert: true }, function (err, numReplaced) {
+      if(err) console.log(err);
+      console.log(numReplaced);
+    });
+  });
+};
+exports.addUpdateAlbum = (album) => {
+  albums.update({ title: album.title }, album, { upsert: true }, function (err, numReplaced) {
+    if(err) console.log(err);
+    console.log(numReplaced);
+  });
+};
+
+/******************* Track ****************** */
+exports.getTrackCount = () => {
+  let deferred = Q.defer();
+  tracks.count({}, function (err, count) {
+    if (err) deferred.reject(err);
+    else deferred.resolve(count);
+  });
+  return deferred.promise;
+};
 exports.getTracks = () => {
   let deferred = Q.defer();
   tracks.find({},function (err, docs) {
@@ -55,26 +104,31 @@ exports.getTracks = () => {
   });
   return deferred.promise;
 };
-
-exports.getAlbumById = (albumId) => {
-  let deferred = Q.defer();
-  albums.find({'id': albumId},function (err, docs) {
-    if (err) deferred.reject(err);
-    else deferred.resolve(docs);
-  });
-  return deferred.promise;
-};
-
-exports.getAlbumByName = (title) => {
-  let deferred = Q.defer();
-  albums.find({'title': title},function (err, docs) {
-    if (err) deferred.reject(err);
-    else deferred.resolve(docs);
-  });
-  return deferred.promise;
-};
-
 exports.getTrackById = (trackId) => {
+  let deferred = Q.defer();
+  tracks.findOne({'id': trackId},function (err, docs) {
+    if (err) deferred.reject(err);
+    else deferred.resolve(docs);
+  });
+  return deferred.promise;
+};
+exports.getTrackByFileName = (fileName) => {
+  let deferred = Q.defer();
+  tracks.findOne({'fileName': fileName},function (err, docs) {
+    if (err) deferred.reject(err);
+    else deferred.resolve(docs);
+  });
+  return deferred.promise;
+};
+exports.getTracksByFileNames = (fileNames) => {
+  let deferred = Q.defer();
+  tracks.find({fileName: {$in:fileNames}},function (err, docs) {
+    if (err) deferred.reject(err);
+    else deferred.resolve(docs);
+  });
+  return deferred.promise;
+};
+exports.getTracksByIds = (trackIds) => {
   let deferred = Q.defer();
   tracks.find({'id': trackId},function (err, docs) {
     if (err) deferred.reject(err);
@@ -82,8 +136,7 @@ exports.getTrackById = (trackId) => {
   });
   return deferred.promise;
 };
-
-exports.getTrackByAlbumId = (albumId) => {
+exports.getTracksByAlbumId = (albumId) => {
   let deferred = Q.defer();
   tracks.find({'albumId': albumId},function (err, docs) {
     if (err) deferred.reject(err);
@@ -91,26 +144,36 @@ exports.getTrackByAlbumId = (albumId) => {
   });
   return deferred.promise;
 };
-
-exports.getTrackByFileName = (fileName) => {
-  let deferred = Q.defer();
-  tracks.find({'fileName': fileName},function (err, docs) {
-    if (err) deferred.reject(err);
-    else deferred.resolve(docs);
-  });
-  return deferred.promise;
-};
-
 exports.getTrackByAlbumName = (albumName) => {
   let deferred = Q.defer();
-  tracks.find({'album': albumName},function (err, docs) {
+  tracks.findOne({'album': albumName},function (err, docs) {
     if (err) deferred.reject(err);
     else deferred.resolve(docs);
   });
   return deferred.promise;
 };
+exports.insertTracks = (newtracks) => {
+  tracks.insert(newtracks, function (err, newDocs) {
+    if(err) console.log(err);
+  });
+};
+exports.addUpdateTracks = (tracksToAdd) => {
+  tracksToAdd.forEach(function(track) {
+    tracks.update({ title: track.title }, track, { upsert: true }, function (err, numReplaced) {
+      if(err) console.log(err);
+      console.log(numReplaced);
+    });
+  });
+};
+exports.addUpdateTrack = (track) => {
+  tracks.update({ title: track.title }, track, { upsert: true }, function (err, numReplaced) {
+    if(err) console.log(err);
+    console.log(numReplaced);
+  });
+};
 
-exports.getFavTrack = () => {
+/******************* Favs ****************** */
+exports.getFavTracks = () => {
   let deferred = Q.defer();
   tracks.find({'favIcon': 'favorite'},function (err, docs) {
     if (err) deferred.reject(err);
@@ -119,9 +182,10 @@ exports.getFavTrack = () => {
   return deferred.promise;
 };
 
+/******************* Playlists ****************** */
 exports.getPlaylists = () => {
   let deferred = Q.defer();
-  tracks.find({},{playlists:1, _id:0},function (err, docs) {
+  tracks.find({playlists: { $exists: true }},{playlists:1, _id:0},function (err, docs) {
     if (err) deferred.reject(err);
     else {
       if (docs.length > 1) {
@@ -134,7 +198,6 @@ exports.getPlaylists = () => {
   });
   return deferred.promise;
 };
-
 exports.getPlaylistTracks = (playlistId) => {
   let deferred = Q.defer();
   tracks.find({$where:function(){return this.playlists.indexOf(playlistId) > -1;}},function (err, docs) {
@@ -143,47 +206,16 @@ exports.getPlaylistTracks = (playlistId) => {
   });
   return deferred.promise;
 };
+exports.getPlaylistArt = (playlistId) => {
 
-exports.insertAlbums = (newAlbums) => {
-  albums.insert(newAlbums, function (err, newDocs) {
-    if(err) console.log(err);
-  });
 };
 
-exports.insertTracks = (newtracks) => {
-  tracks.insert(newtracks, function (err, newDocs) {
-    if(err) console.log(err);
+/******************* Search ****************** */
+exports.searchTracks = (text) => {
+  let deferred = Q.defer();
+  tracks.find({$where:function(){return this.playlists.indexOf(playlistId) > -1;}},function (err, docs) {
+    if (err) deferred.reject(err);
+    else deferred.resolve(docs);
   });
-};
-
-exports.addUpdateAlbums = (albumsToAdd) => {
-  albumsToAdd.forEach(function(album) {
-    albums.update({ title: album.title }, album, { upsert: true }, function (err, numReplaced) {
-      if(err) console.log(err);
-      console.log(numReplaced);
-    });
-  });
-};
-
-exports.addUpdateAlbum = (album) => {
-  albums.update({ title: album.title }, album, { upsert: true }, function (err, numReplaced) {
-    if(err) console.log(err);
-    console.log(numReplaced);
-  });
-};
-
-exports.addUpdateTracks = (tracksToAdd) => {
-  tracksToAdd.forEach(function(track) {
-    tracks.update({ title: track.title }, track, { upsert: true }, function (err, numReplaced) {
-      if(err) console.log(err);
-      console.log(numReplaced);
-    });
-  });
-};
-
-exports.addUpdateTrack = (track) => {
-  tracks.update({ title: track.title }, track, { upsert: true }, function (err, numReplaced) {
-    if(err) console.log(err);
-    console.log(numReplaced);
-  });
+  return deferred.promise;
 };

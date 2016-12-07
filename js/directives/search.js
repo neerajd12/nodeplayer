@@ -1,10 +1,10 @@
 angular.module('skynetclient.searchModule', [])
 .directive('searchUi', ['$document', function($document) {
-  var searchCtrl = ['$scope', '$location', 'musicService', function ($scope, $location, musicService) {
+  var searchCtrl = ['$scope', '$location', function ($scope, $location) {
     $scope.searchResults;
 
     $scope.searchTextChange = function(searchText) {
-      musicService.searchTracks(searchText).then(function(data) {
+      searchTracks(searchText).then(function(data) {
         $scope.searchResults = data;
       },function(err) {
         console.log(err);

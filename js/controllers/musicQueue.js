@@ -1,6 +1,6 @@
 'use strict';
 angular.module('skynetclient.musicQueueModule',[])
-.controller('musicQueueCtrl', function ($scope, $rootScope, $route, musicQueue, musicService, buttonFactory, coverData, trackData) {
+.controller('musicQueueCtrl', function ($scope, $rootScope, $route, musicQueue, buttonFactory, coverData, trackData) {
   $scope.coverData = coverData;
   $scope.trackData = trackData;
   $scope.coverData.actions = buttonFactory.getMusicButtons();
@@ -42,8 +42,12 @@ angular.module('skynetclient.musicQueueModule',[])
   }
 
   $rootScope.$on('currentTrackChanged', function () {
-    $scope.trackData = musicService.getTracksByFileName(musicQueue.getTracks());
-    queueSettings();
+    getTracksByFileNames(musicQueue.getTracks()).then(function(data) {
+      $scope.trackData = data;
+      queueSettings();
+    },function(err) {
+      console.log(err);
+    });
   });
   queueSettings();
 

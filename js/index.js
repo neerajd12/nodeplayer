@@ -103,7 +103,7 @@
           templateUrl : 'templates/albums.html',
           controller: 'albumsCtrl',
           resolve: {
-            collection: function(musicService){
+            collection: function(){
               return getAlbums();
             }
           }
@@ -111,8 +111,8 @@
         .when('/playlists', {
           templateUrl : 'templates/playlists.html',
           resolve: {
-            playlists: function(musicService){
-              return musicService.getPlayLists();
+            playlists: function(){
+              return getPlayLists();
             }
           },
           controller: 'playlistsCtrl'
@@ -125,8 +125,8 @@
           templateUrl : 'templates/details.html',
           controller: 'musicQueueCtrl',
           resolve: {
-            trackData: function(musicQueue, musicService) {
-              return musicService.getTracksByFileName(musicQueue.getTracks());
+            trackData: function(musicQueue) {
+              return getTracksByFileNames(musicQueue.getTracks());
             },
             coverData: function() {
               return [];
@@ -137,11 +137,11 @@
           templateUrl: 'templates/details.html',
           controller: 'albumsDetailsCtrl',
           resolve: {
-            coverData: function($route, musicService) {
-              return musicService.getAlbumById($route.current.params.albumId);
+            coverData: function($route) {
+              return getAlbumById($route.current.params.albumId);
             },
-            trackData: function($route, musicService){
-              return musicService.getTracksByAlbumId($route.current.params.albumId);
+            trackData: function($route){
+              return getTracksByAlbumId($route.current.params.albumId);
             }
           }
         })
@@ -149,8 +149,8 @@
           templateUrl : 'templates/details.html',
           controller: 'playlistDetailsCtrl',
           resolve: {
-            trackData : function($route, musicService) {
-              return musicService.getPlaylistTracks($route.current.params.playlistId);
+            trackData : function($route) {
+              return getPlaylistTracks($route.current.params.playlistId);
             },
             coverData: function($route) {
               return [];

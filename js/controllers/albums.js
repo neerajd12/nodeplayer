@@ -1,6 +1,6 @@
 'use strict';
 angular.module('skynetclient.albumsModule',[])
-.controller('albumsCtrl',function($rootScope, $scope, $location, musicQueue, musicService, collection) {
+.controller('albumsCtrl',function($rootScope, $scope, $location, musicQueue, collection) {
   function setTiles(data) {
     if (data.length > 0) {
       $scope.tiles = data;
@@ -22,16 +22,17 @@ angular.module('skynetclient.albumsModule',[])
   };
   $scope.addAlbumToQ = function(albumId, event){
     event.stopPropagation();
-    musicQueue.appendQueue(musicService.getTracksByAlbumId(albumId).map(function(track){return track.fileName}));
+    musicQueue.appendQueue(getTracksByAlbumId(albumId).map(function(track){return track.fileName}));
   };
   $scope.playAlbumTracks = function(albumId, event){
     event.stopPropagation();
-    musicQueue.prependQueue(musicService.getTracksByAlbumId(albumId).map(function(track){return track.fileName}));
+    musicQueue.prependQueue(getTracksByAlbumId(albumId).map(function(track){return track.fileName}));
   };
   setTiles(collection);
 })
-.controller('albumsDetailsCtrl',function($scope, $routeParams, musicQueue, musicService, buttonFactory, coverData, trackData) {
+.controller('albumsDetailsCtrl',function($scope, $routeParams, musicQueue, buttonFactory, coverData, trackData) {
   $scope.coverData = coverData;
+  console.log($scope.coverData);
   $scope.trackData = trackData;
   $scope.coverData.actions = buttonFactory.getMusicButtons();
   $scope.trackActions = buttonFactory.getMusicButtons();

@@ -1,20 +1,20 @@
 'use strict';
 angular.module('skynetclient.detailsViewModule',[])
-.controller('detailsViewCtrl',function($scope, $rootScope, musicQueue, musicService) {
+.controller('detailsViewCtrl',function($scope, $rootScope, musicQueue) {
   $scope.art = Array.from(new Set($scope.trackData.map(function(tt){return tt.picture})));
 
   $scope.toggleFav = function(tracks, trackId) {
     if (trackId) {
       if (tracks.favIcon === 'favorite_border') {
-        musicService.setFavSingleTrack(tracks, 'favorite', true);
+        setFavSingleTrack(tracks, 'favorite', true);
       } else {
-        musicService.setFavSingleTrack(tracks, 'favorite_border', true);
+        setFavSingleTrack(tracks, 'favorite_border', true);
       }
     } else {
       if ($scope.coverData.favIcon === 'favorite_border') {
-        musicService.setFavMultipleTracks(tracks, 'favorite');
+        setFavMultipleTracks(tracks, 'favorite');
       } else {
-        musicService.setFavMultipleTracks(tracks, 'favorite_border');
+        setFavMultipleTracks(tracks, 'favorite_border');
       }
     }
     checkCoverFavIcon();

@@ -9,8 +9,12 @@ chokidar = require('chokidar'),
 Q = require('q'),
 log = console.log.bind(console),
 supportedFiles=['mp3','wav'],
-dataDir = os.homedir() + path.sep +'.nodeplayerdata' + path.sep,
-db = require('./dbService');
+mkdirp = require('mkdirp');
+dataDir = os.homedir() + path.sep +'.nodeplayerdata' + path.sep;
+mkdirp(dataDir, function (err) {
+    if (err) console.error(err);
+});
+const db = require('./dbService');
 let musicDir = '',
 diskWatcher;
 

@@ -1,5 +1,5 @@
 angular.module('skynetclient.playerModule', [])
-.controller('playerCtrl',function ($scope, $rootScope, $interval, $location, musicQueue, musicService, Notification) {
+.controller('playerCtrl',function ($scope, $rootScope, $interval, $location, musicQueue, Notification) {
   $scope.fabOpen = false;
   var trackPoller;
 
