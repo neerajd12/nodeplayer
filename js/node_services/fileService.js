@@ -232,7 +232,7 @@ exports.initMusicCache = () => {
 };
 
 exports.updateMusicHome = (newPath) => {
-  if ((newPath + path.sep) != musicDir) {
+  if ((newPath + path.sep) !== musicDir) {
     setMusicDir(newPath + path.sep);
     refreshCache();
   }

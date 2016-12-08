@@ -13,6 +13,7 @@ albums.ensureIndex({ fieldName: 'title', unique: true }, function (err) {if(err)
 tracks.ensureIndex({ fieldName: 'id', unique: true }, function (err) {if(err) console.log(err);});
 tracks.ensureIndex({ fieldName: 'fileName', unique: true }, function (err) {if(err) console.log(err);});
 tracks.ensureIndex({ fieldName: 'title', unique: false }, function (err) {if(err) console.log(err);});
+tracks.ensureIndex({ fieldName: 'artist', unique: false }, function (err) {if(err) console.log(err);});
 tracks.ensureIndex({ fieldName: 'albumId', unique: false }, function (err) {if(err) console.log(err);});
 tracks.ensureIndex({ fieldName: 'album', unique: false }, function (err) {if(err) console.log(err);});
 
@@ -53,19 +54,24 @@ exports.getAlbumByName = (title) => {
   });
   return deferred.promise;
 };
+//.then(function(doc){},function(err){});
 exports.getAlbumByTrackId = (trackId) => {
   let deferred = Q.defer();
-  albums.findOne({'title': title},function (err, docs) {
-    if (err) deferred.reject(err);
-    else deferred.resolve(docs);
+  getTrackById(trackId).then(function(doc){
+    deferred.resolve(getAlbumById(doc.id));
+  },function(err){
+    deferred.reject(err);
   });
   return deferred.promise;
 };
-exports.getAlbumByTrackName = (trackId) => {
-
-};
-exports.getAlbumArt = (trackId) => {
-  //return self.getUnique(getTracksByAlbumId(id).map(function(val){return val.picture}));
+exports.getAlbumByTrackName = (trackName) => {
+  let deferred = Q.defer();
+  getTrackByFileName(trackName).then(function(doc){
+    deferred.resolve(getAlbumById(doc.id));
+  },function(err){
+    deferred.reject(err);
+  });
+  return deferred.promise;
 };
 exports.insertAlbums = (newAlbums) => {
   albums.insert(newAlbums, function (err, newDocs) {
@@ -122,7 +128,7 @@ exports.getTrackByFileName = (fileName) => {
 };
 exports.getTracksByFileNames = (fileNames) => {
   let deferred = Q.defer();
-  tracks.find({fileName: {$in:fileNames}},function (err, docs) {
+  tracks.find({'fileName': {$in:fileNames}},function (err, docs) {
     if (err) deferred.reject(err);
     else deferred.resolve(docs);
   });
@@ -130,7 +136,7 @@ exports.getTracksByFileNames = (fileNames) => {
 };
 exports.getTracksByIds = (trackIds) => {
   let deferred = Q.defer();
-  tracks.find({'id': trackId},function (err, docs) {
+  tracks.find({'id': {$in:trackIds}},function (err, docs) {
     if (err) deferred.reject(err);
     else deferred.resolve(docs);
   });
@@ -141,6 +147,14 @@ exports.getTracksByAlbumId = (albumId) => {
   tracks.find({'albumId': albumId},function (err, docs) {
     if (err) deferred.reject(err);
     else deferred.resolve(docs);
+  });
+  return deferred.promise;
+};
+exports.getTracksNamesByAlbumId = (albumId) => {
+  let deferred = Q.defer();
+  tracks.find({'albumId': albumId}, {fileName: 1, _id: 0 }, function (err, docs) {
+    if (err) deferred.reject(err);
+    else deferred.resolve(docs.map(function(val){return val.fileName}));
   });
   return deferred.promise;
 };
@@ -181,18 +195,24 @@ exports.getFavTracks = () => {
   });
   return deferred.promise;
 };
+exports.updateTracksFavIcon = (trackIds, icon) => {
+  tracks.update({'id':{ $in:trackIds}}, {$set: {'favIcom': icon}}, {multi: true}, function(err, numReplaced){});
+};
+exports.updateAlbumFavIcon = (albumId, icon) => {
+  tracks.update({'albumId': albumId}, {$set: {'favIcom': icon}}, {multi: true}, function(err, numReplaced){});
+};
 
 /******************* Playlists ****************** */
 exports.getPlaylists = () => {
   let deferred = Q.defer();
-  tracks.find({playlists: { $exists: true }},{playlists:1, _id:0},function (err, docs) {
+  tracks.find({playlists: { $exists: true }},{playlists:1, _id:0}, function (err, docs) {
     if (err) deferred.reject(err);
     else {
-      if (docs.length > 1) {
-        let unique = Array.from(new Set(docs.map(function(doc){return doc.playlists}).reduce(function(a,b){return a.concat(b)})));
-        deferred.resolve(unique);
+      let playlists = docs.map(function(doc){return doc.playlists});
+      if (playlists.length > 1) {
+        deferred.resolve(Array.from(new Set(playlists.reduce(function(a,b){return a.concat(b)}))));
       } else {
-        deferred.resolve(docs);
+        deferred.resolve(playlists);
       }
     }
   });
@@ -200,20 +220,61 @@ exports.getPlaylists = () => {
 };
 exports.getPlaylistTracks = (playlistId) => {
   let deferred = Q.defer();
-  tracks.find({$where:function(){return this.playlists.indexOf(playlistId) > -1;}},function (err, docs) {
+  tracks.find({playlists:{ $in:[playlistId]}},function (err, docs) {
     if (err) deferred.reject(err);
     else deferred.resolve(docs);
   });
   return deferred.promise;
 };
+exports.getPlaylistTrackNames = (playlistId) => {
+  let deferred = Q.defer();
+  tracks.find({playlists:{ $in:[playlistId]}}, { fileName: 1, _id: 0 }, function (err, docs) {
+    if (err) deferred.reject(err);
+    else deferred.resolve(docs.map(function(val){return val.fileName}));
+  });
+  return deferred.promise;
+};
 exports.getPlaylistArt = (playlistId) => {
-
+  let deferred = Q.defer();
+  tracks.find({playlists:{ $in:[playlistId]}}, { picture: 1, _id: 0 }, function (err, docs) {
+    if (err) deferred.reject(err);
+    else {
+      let arts = docs.map(function(doc){return doc.picture});
+      if (arts.length > 1) {
+        deferred.resolve(Array.from(new Set(arts.reduce(function(a,b){return a.concat(b)}))));
+      } else {
+        deferred.resolve(arts);
+      }
+    }
+  });
+  return deferred.promise;
+};
+exports.addTracksToPlayList = (trackIds, playlistId) => {
+  tracks.update({'id':{$in:trackIds}}, {$addToSet: {'playlists': playlistId}}, { multi: true }, function(err,docs){});
+};
+exports.removeTracksFromPlaylist = (trackIds, playlistId) => {
+  tracks.update({'id':{$in:trackIds}}, {$pull: {'playlists': playlistId }}, { multi: true }, function(err,docs){});
+};
+exports.addAlbumToPlayList = (albumId, playlistId) => {
+  tracks.update({'albumId': albumId}, {$addToSet: {'playlists': playlistId}}, { multi: true }, function(err,docs){});
+};
+exports.removeAlbumFromPlaylist = (albumId, playlistId) => {
+  tracks.update({'albumId': albumId}, {$pull: {'playlists': playlistId}}, {multi: true}, function(err,docs){});
+};
+exports.deletePlayList = (playlistId) => {
+  tracks.update({'playlists': {$in: [playlistId]}}, {$pull: {'playlists': playlistId}}, {multi:true}, function(err, count){});
 };
 
 /******************* Search ****************** */
-exports.searchTracks = (text) => {
+exports.searchTracks = (searchText) => {
   let deferred = Q.defer();
-  tracks.find({$where:function(){return this.playlists.indexOf(playlistId) > -1;}},function (err, docs) {
+  let regexp = new RegExp(searchText, "i");
+  tracks.find({ $or: [
+      { 'fileName': {$regex: regexp}},
+      { 'title': {$regex: regexp}},
+      { 'album': {$regex: regexp}},
+      { 'artist': {$regex: regexp}}]
+  }, function (err, docs) {
     if (err) deferred.reject(err);
     else deferred.resolve(docs);
   });

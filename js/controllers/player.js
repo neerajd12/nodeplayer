@@ -125,40 +125,39 @@ angular.module('skynetclient.playerModule', [])
     $scope.audio.currentTime = $scope.track['currentTime'];
   };
 
-  function setTrack(toPlay) {
-    getTrackByFileName(toPlay).then(function(trk) {
-      if (trk.length > 0) {
-        $scope.track = trk[0];
-        $scope.track['currentTime'] = 0;
-      } else {
-        $scope.track = {
-          title: '',
-          fileName: '',
-          picture : 'img/album-placeholder.jpg',
-          duration : 0,
-          currentTime: 0
-        };
-      }
-    },function(err){
-      console.log(err);
-    });
+  function resetTrack() {
+    $scope.track = {
+      title: '',
+      fileName: '',
+      picture : 'img/album-placeholder.jpg',
+      duration : 0,
+      currentTime: 0
+    };
   };
 
   function clearAudio() {
     $scope.audio.pause();
     $scope.audio.src='';
+    resetTrack();
   };
 
-  function startMusic(toPlay) {
-    clearAudio();
-    if (toPlay) {
-      setTrack(toPlay);
-      if ($scope.track.fileName) {
+  function setTrackAndPlay(track, doPlay) {
+    getTrackByFileName(track).then(function(trk) {
+      $scope.track = trk;
+      $scope.track['currentTime'] = 0;
+      if (doPlay && $scope.track.fileName) {
         $scope.audio.src = $scope.track.fileName;
         $scope.audio.play();
         $rootScope.$emit('currentTrackChanged');
       }
-    }
+    },function(err) {
+      resetTrack();
+    });
+  }
+
+  function startMusic(toPlay) {
+    clearAudio();
+    setTrackAndPlay(toPlay, true);
   };
 
   function playAudio(track) {
@@ -177,9 +176,12 @@ angular.module('skynetclient.playerModule', [])
     startMusic(musicQueue.getCurrent());
   });
   $rootScope.$on('queueEmpty', function() {
-    setTrack([]);
+    clearAudio();
   });
   $rootScope.$on('musicExist', function() {
-    setTrack(musicQueue.getCurrent())
+    let current = musicQueue.getCurrent();
+    if (current) {
+      setTrackAndPlay(current, false);
+    }
   });
 });

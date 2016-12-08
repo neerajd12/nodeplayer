@@ -125,7 +125,7 @@ angular.module('skynetclient.musicServiceModule', [])
       clickOutsideToClose:true
     }).then(function(playlistId) {
       if (trackId) {
-        addTrackToPlayList(tracks, playlistId);
+        addTrackToPlayList([tracks], playlistId);
       } else {
         addTracksToPlayList(tracks, playlistId);
       }

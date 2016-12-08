@@ -3,7 +3,8 @@
   angular.module('skynetclient.notificationsModule', [])
 	.service('Notification', function ($mdToast) {
     var self = this;
-    this.primary = function(data){
+    this.primary = function(data) {
+      //new Notification('Node Player', {body: data});
       $mdToast.show(
         $mdToast.simple()
           .textContent(data)
@@ -12,7 +13,7 @@
           .theme("warning-toast")
       );
     };
-    this.error = function(data){
+    this.error = function(data) {
       $mdToast.show(
         $mdToast.simple()
           .textContent(data)
@@ -21,7 +22,7 @@
           .theme("error-toast")
       );
     };
-    this.warning = function(data){
+    this.warning = function(data) {
       $mdToast.show(
         $mdToast.simple()
           .textContent(data)

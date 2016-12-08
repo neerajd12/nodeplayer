@@ -13,15 +13,6 @@ function getAlbumByTrackId(trackId) {
 function getAlbumByTrackName(trackName) {
   return fServ.getDB().getAlbumByTrackName(trackName);
 };
-function getAlbumArt(albumId) {
-  return fServ.getDB().getAlbumArt();
-};
-function updateAlbums(albums) {
-
-};
-function updateAlbum(album) {
-
-};
 /******************* Track ****************** */
 function getTrackById(trackId) {
   return fServ.getDB().getTrackById(trackId);
@@ -38,28 +29,21 @@ function getTracksByIds(trackIds) {
 function getTracksByAlbumId(albumId) {
   return fServ.getDB().getTracksByAlbumId(albumId);
 };
-function updateTracks(tracks) {
-
-};
-function updateTrack(track) {
-
+function getTracksNamesByAlbumId(albumId) {
+  return fServ.getDB().getTracksNamesByAlbumId(albumId);
 };
 function searchTracks(searchText) {
-  fServ.getDB().searchTracks();
+  return fServ.getDB().searchTracks(searchText);
 };
 /******************* Favs ****************** */
 function getFavs() {
   return fServ.getDB().getFavTracks(albumId);
 };
-
-function setFavSingleTrack(track, icon) {
-
+function updateTracksFavIcon(tracks, icon) {
+  fServ.getDB().updateTracksFavIcon(tracks.map(function(val){return val.id}),icon);
 };
-function setFavMultipleTracks(tracks, icon) {
-
-};
-function setFavAlbum(albumId, icon) {
-
+function updateAlbumFavIcon(albumId, icon) {
+  fServ.getDB().updateAlbumFavIcon(albumId, icon);
 };
 /******************* Playlists ****************** */
 function getPlayLists() {
@@ -69,32 +53,25 @@ function getPlaylistTracks(id) {
   return fServ.getDB().getPlaylistTracks(id);
 };
 function getPlaylistTrackNames(id) {
-
+  return fServ.getDB().getPlaylistTrackNames(id);
 };
 function getPlaylistArt(playlistId) {
   return fServ.getDB().getPlaylistArt(playlistId);
 };
-
-function addTrackToPlayList(track, playlistId) {
-
-};
 function addTracksToPlayList(tracks, playlistId) {
-
-};
-function removeTrackFromPlaylist(track, playlistId) {
-
+  fServ.getDB().addTracksToPlayList(tracks.map(function(val){return val.id}), playlistId);
 };
 function removeTracksFromPlaylist(tracks, playlistId) {
-
+  fServ.getDB().removeTracksFromPlaylist(tracks.map(function(val){return val.id}), playlistId);
 };
 function addAlbumToPlayList(albumId, playlistId) {
-
+  fServ.getDB().addAlbumToPlayList(albumId, playlistId);
 };
 function removeAlbumFromPlaylist(albumId, playlistId) {
-
+  fServ.getDB().removeAlbumFromPlaylist(albumId, playlistId);
 };
 function deletePlayList(playlistId) {
-
+  fServ.getDB().deletePlayList(playlistId);
 };
 
 function selectMusicHome() {

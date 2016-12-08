@@ -13,6 +13,7 @@ angular.module('skynetclient.musicQueueModule',[])
       $scope.trackData.splice(index, 1);
     } else {
       musicQueue.removeTracks(trackData.map(function(val){return val.fileName}));
+      $scope.trackData = [];
     }
     if ($scope.trackData.length < 1) {
       $route.reload();

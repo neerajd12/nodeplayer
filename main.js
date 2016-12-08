@@ -13,11 +13,11 @@ let win;
 
 function createWindow() {
   // Create the browser window.
-  win = new BrowserWindow({width: 1200, height: 600, icon:'img/icon.png'/*, frame:false*/,backgroundColor: '#000000'});
+  win = new BrowserWindow({width: 1200, height: 600, icon:'img/icon.png'/*, frame:false*/,backgroundColor: '#ffffff'});
   win.setMenu(null);
   //mainWindow.center();
   // Open the DevTools.
-  win.webContents.openDevTools();
+  //win.webContents.openDevTools();
   win.loadURL(`file://${__dirname}/index.html`);
   db.getAlbumCount().then(function(count) {
     if (count == 0) {

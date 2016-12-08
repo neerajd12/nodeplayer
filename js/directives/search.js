@@ -12,13 +12,7 @@ angular.module('skynetclient.searchModule', [])
     };
 
     $scope.searchSelectedItemChange = function(item) {
-      if(item) {
-        if(item.albumId) {
-          $location.path("album/"+item.albumId+"/song/"+item.title);
-        } else {
-          $location.path("album/"+item.id);
-        }
-      }
+      $location.path("albums/"+item.albumId+"/song/"+item.title);
     };
   }];
   return {

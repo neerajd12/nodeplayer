@@ -22,17 +22,20 @@ angular.module('skynetclient.albumsModule',[])
   };
   $scope.addAlbumToQ = function(albumId, event){
     event.stopPropagation();
-    musicQueue.appendQueue(getTracksByAlbumId(albumId).map(function(track){return track.fileName}));
+    getTracksNamesByAlbumId(albumId).then(function(docs) {
+      musicQueue.appendQueue(docs);
+    },function(err){});
   };
   $scope.playAlbumTracks = function(albumId, event){
     event.stopPropagation();
-    musicQueue.prependQueue(getTracksByAlbumId(albumId).map(function(track){return track.fileName}));
+    getTracksNamesByAlbumId(albumId).then(function(docs) {
+      musicQueue.prependQueue(docs);
+    },function(err){});
   };
   setTiles(collection);
 })
 .controller('albumsDetailsCtrl',function($scope, $routeParams, musicQueue, buttonFactory, coverData, trackData) {
   $scope.coverData = coverData;
-  console.log($scope.coverData);
   $scope.trackData = trackData;
   $scope.coverData.actions = buttonFactory.getMusicButtons();
   $scope.trackActions = buttonFactory.getMusicButtons();

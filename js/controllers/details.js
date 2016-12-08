@@ -4,18 +4,18 @@ angular.module('skynetclient.detailsViewModule',[])
   $scope.art = Array.from(new Set($scope.trackData.map(function(tt){return tt.picture})));
 
   $scope.toggleFav = function(tracks, trackId) {
+    let toUpdate = 'favorite_border';
     if (trackId) {
       if (tracks.favIcon === 'favorite_border') {
-        setFavSingleTrack(tracks, 'favorite', true);
-      } else {
-        setFavSingleTrack(tracks, 'favorite_border', true);
+        toUpdate = 'favorite';
       }
+      updateTracksFavIcon([tracks], toUpdate);
     } else {
       if ($scope.coverData.favIcon === 'favorite_border') {
-        setFavMultipleTracks(tracks, 'favorite');
-      } else {
-        setFavMultipleTracks(tracks, 'favorite_border');
+        toUpdate = 'favorite';
       }
+      tracks.forEach(function(val){ val.favIcon = toUpdate});
+      updateTracksFavIcon(tracks, toUpdate);
     }
     checkCoverFavIcon();
   };
