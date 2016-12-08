@@ -1,6 +1,6 @@
 # nodeplayer
 
-A connected music player for desktop built using nodejs and electron
+A connected music player for desktop built using nodejs and electron.
 
 # TODO
 
@@ -10,8 +10,19 @@ A connected music player for desktop built using nodejs and electron
 4. Improve Desktop Integration
 5. Improve themes support
 
-# Build
+# Development and Test
 
-Use <a href="https://github.com/electron-userland/electron-packager">electron-packager</a> to build
+1. git clone
+2. npm install
+3. npm start
 
-electron-packager . --all --overwrite --version=1.4.10 --out=./build --icon=./img/icon.png
+# To Build
+
+Use <a href="https://github.com/electron-userland/electron-builder">electron-builder</a> to build
+
+npm run dist
+
+# Downloads
+
+<a href="https://github.com/neerajdixit/nodeplayer/tree/master/dist/nodePlayer-0.1.0-x86_64.AppImage">Windows</a>
+<a href="https://github.com/neerajdixit/nodeplayer/tree/master/dist/nodePlayer Setup 0.1.0.exe">Linux</a>
