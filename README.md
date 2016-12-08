@@ -24,5 +24,5 @@ npm run dist
 
 # Downloads
 
-<a href="https://github.com/neerajdixit/nodeplayer/tree/master/dist/nodePlayer-0.1.0-x86_64.AppImage">Windows</a>
-<a href="https://github.com/neerajdixit/nodeplayer/tree/master/dist/nodePlayer Setup 0.1.0.exe">Linux</a>
+1. <a href="https://github.com/neerajdixit/nodeplayer/tree/master/dist/nodePlayer-0.1.0-x86_64.AppImage">Windows</a>
+2. <a href="https://github.com/neerajdixit/nodeplayer/tree/master/dist/nodePlayer Setup 0.1.0.exe">Linux</a>
