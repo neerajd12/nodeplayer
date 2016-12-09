@@ -6,8 +6,9 @@ angular.module('skynetclient.detailsViewModule',[])
     let toUpdate = 'favorite_border';
     if (trackId) {
       if (tracks.favIcon === 'favorite_border') {
-        toUpdate = tracks.favIcon = 'favorite';
+        toUpdate = 'favorite';
       }
+      tracks.favIcon = toUpdate;
       updateTracksFavIcon([tracks], toUpdate);
     } else {
       if ($scope.coverData.favIcon === 'favorite_border') {
