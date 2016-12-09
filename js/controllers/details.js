@@ -2,12 +2,11 @@
 angular.module('skynetclient.detailsViewModule',[])
 .controller('detailsViewCtrl',function($scope, $rootScope, musicQueue) {
   $scope.art = Array.from(new Set($scope.trackData.map(function(tt){return tt.picture})));
-
   $scope.toggleFav = function(tracks, trackId) {
     let toUpdate = 'favorite_border';
     if (trackId) {
       if (tracks.favIcon === 'favorite_border') {
-        toUpdate = 'favorite';
+        toUpdate = tracks.favIcon = 'favorite';
       }
       updateTracksFavIcon([tracks], toUpdate);
     } else {

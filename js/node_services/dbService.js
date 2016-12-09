@@ -196,10 +196,10 @@ exports.getFavTracks = () => {
   return deferred.promise;
 };
 exports.updateTracksFavIcon = (trackIds, icon) => {
-  tracks.update({'id':{ $in:trackIds}}, {$set: {'favIcom': icon}}, {multi: true}, function(err, numReplaced){});
+  tracks.update({'id':{ $in:trackIds}}, {$set: {'favIcon': icon}}, {multi: true}, function(err, numReplaced){});
 };
 exports.updateAlbumFavIcon = (albumId, icon) => {
-  tracks.update({'albumId': albumId}, {$set: {'favIcom': icon}}, {multi: true}, function(err, numReplaced){});
+  tracks.update({'albumId': albumId}, {$set: {'favIcon': icon}}, {multi: true}, function(err, numReplaced){});
 };
 
 /******************* Playlists ****************** */
