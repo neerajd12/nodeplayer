@@ -80,14 +80,16 @@ exports.insertAlbums = (newAlbums) => {
 };
 exports.addUpdateAlbums = (albumsToAdd) => {
   albumsToAdd.forEach(function(album) {
-    albums.update({ title: album.title }, album, { upsert: true }, function (err, numReplaced) {
-      if(err) console.log(err);
-      console.log(numReplaced);
+    albums.findOne({'title': album.title},function (err, docs) {
+      if (!err && !docs) {
+        console.log(album.title);
+        insertAlbums(album);
+      }
     });
   });
 };
 exports.addUpdateAlbum = (album) => {
-  albums.update({ title: album.title }, album, { upsert: true }, function (err, numReplaced) {
+  albums.update({ title: album.title }, album, function (err, numReplaced) {
     if(err) console.log(err);
     console.log(numReplaced);
   });
@@ -173,14 +175,16 @@ exports.insertTracks = (newtracks) => {
 };
 exports.addUpdateTracks = (tracksToAdd) => {
   tracksToAdd.forEach(function(track) {
-    tracks.update({ title: track.title }, track, { upsert: true }, function (err, numReplaced) {
-      if(err) console.log(err);
-      console.log(numReplaced);
+    tracksToAdd.findOne({'fileName': track.fileName},function (err, docs) {
+      if (!err && !docs) {
+        console.log(track.title);
+        insertTracks(album);
+      }
     });
   });
 };
 exports.addUpdateTrack = (track) => {
-  tracks.update({ title: track.title }, track, { upsert: true }, function (err, numReplaced) {
+  tracks.update({ title: track.title }, track, function (err, numReplaced) {
     if(err) console.log(err);
     console.log(numReplaced);
   });
@@ -205,7 +209,7 @@ exports.updateAlbumFavIcon = (albumId, icon) => {
 /******************* Playlists ****************** */
 exports.getPlaylists = () => {
   let deferred = Q.defer();
-  tracks.find({playlists: { $exists: true }},{playlists:1, _id:0}, function (err, docs) {
+  tracks.find({playlists: { $exists: true }}, {playlists:1, _id:0}, function (err, docs) {
     if (err) deferred.reject(err);
     else {
       let playlists = docs.map(function(doc){return doc.playlists});
@@ -241,7 +245,7 @@ exports.getPlaylistArt = (playlistId) => {
     else {
       let arts = docs.map(function(doc){return doc.picture});
       if (arts.length > 1) {
-        deferred.resolve(Array.from(new Set(arts.reduce(function(a,b){return a.concat(b)}))));
+        deferred.resolve(Array.from(new Set(arts)));
       } else {
         deferred.resolve(arts);
       }

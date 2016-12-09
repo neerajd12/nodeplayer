@@ -29,7 +29,7 @@ angular.module('skynetclient.musicServiceModule', [])
     return self.getCurrent();
   };
   this.getRandom = function() {
-    self.updateCurrentTrackNum(getRandomArbitrary(0, self.getTracks().length));
+    self.updateCurrentTrackNum(self.getRandomArbitrary(0, self.getTracks().length));
     return self.getCurrent();
   };
   this.updateTracks  = function(tracks) {
@@ -109,30 +109,33 @@ angular.module('skynetclient.musicServiceModule', [])
 })
 .factory('buttonFactory', function($mdDialog, musicQueue, Notification) {
   var showSavePlaylistDialog = function(tracks, trackId, button) {
-    $mdDialog.show({
-      controller: function ($scope, $rootScope, $mdDialog) {
-        $scope.theme = $rootScope.theme;
-        $scope.existingPlaylists = getPlayLists();
-        $scope.cancel = function () {
-          $mdDialog.cancel();
-        };
-        $scope.save = function () {
-          $mdDialog.hide($scope.playlistTitle);
-        };
-      },
-      templateUrl: 'templates/savePlaylist.html',
-      parent: angular.element(document.body),
-      clickOutsideToClose:true
-    }).then(function(playlistId) {
-      if (trackId) {
-        addTrackToPlayList([tracks], playlistId);
-      } else {
-        addTracksToPlayList(tracks, playlistId);
-      }
-      Notification.primary("saved to playlist");
-    }, function(answer) {});
-  };
+    getPlayLists().then(function(doc){
+      $mdDialog.show({
+        controller: function ($scope, $rootScope, $mdDialog) {
+          $scope.theme = $rootScope.theme;
+          $scope.existingPlaylists = doc;
+          $scope.cancel = function () {
+            $mdDialog.cancel();
+          };
+          $scope.save = function () {
+            $mdDialog.hide($scope.playlistTitle);
+          };
+        },
+        templateUrl: 'templates/savePlaylist.html',
+        parent: angular.element(document.body),
+        clickOutsideToClose:true
+      }).then(function(playlistId) {
+        if (trackId) {
+          addTrackToPlayList([tracks], playlistId);
+        } else {
+          addTracksToPlayList(tracks, playlistId);
+        }
+        Notification.primary("saved to playlist");
+      }, function(answer) {});
+    },function(err){
 
+    });
+  };
 	return {
     getMusicButtons : function() {
       return [

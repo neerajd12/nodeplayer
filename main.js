@@ -24,7 +24,9 @@ function createWindow() {
       if (count > 0) win.webContents.send('initDone', '123');
       fileservice.initMusicCache().then(function(data) {
          win.webContents.send('initDone', '1234');
-      },function(err) {console.log(err);});
+      },function(err) {
+        win.webContents.send('initDone', '1234');
+      });
     },function(err) {
       console.log(err);
     });

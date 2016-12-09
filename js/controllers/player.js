@@ -142,6 +142,10 @@ angular.module('skynetclient.playerModule', [])
   };
 
   function setTrackAndPlay(track, doPlay) {
+    if (!track) {
+      resetTrack();
+      return;
+    }
     getTrackByFileName(track).then(function(trk) {
       $scope.track = trk;
       $scope.track['currentTime'] = 0;
@@ -153,7 +157,7 @@ angular.module('skynetclient.playerModule', [])
     },function(err) {
       resetTrack();
     });
-  }
+  };
 
   function startMusic(toPlay) {
     clearAudio();
@@ -179,9 +183,6 @@ angular.module('skynetclient.playerModule', [])
     clearAudio();
   });
   $rootScope.$on('musicExist', function() {
-    let current = musicQueue.getCurrent();
-    if (current) {
-      setTrackAndPlay(current, false);
-    }
+    setTrackAndPlay(musicQueue.getCurrent(), false);
   });
 });

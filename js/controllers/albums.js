@@ -5,11 +5,9 @@ angular.module('skynetclient.albumsModule',[])
     if (newValue) $scope.reCheckMusic();
   });
   function setTiles(data) {
-    if (data.length > 0) {
-      $scope.tiles = data;
-      $scope.loading = false;
-      $rootScope.$emit('musicExist');
-    }
+    $scope.tiles = data;
+    $scope.loading = false;
+    $rootScope.$emit('musicExist');
   }
   $scope.reCheckMusic = function() {
     $scope.loading = true;
