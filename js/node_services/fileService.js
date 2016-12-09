@@ -197,7 +197,6 @@ function refreshCache() {
 function setMusicDir(newDir) {
   db.getConfig().update({ musicDir: musicDir}, { musicDir: newDir}, { upsert: true }, function (err, numReplaced) {
     if(err) console.log(err);
-    console.log(numReplaced);
   });
   musicDir = newDir;
 };
@@ -206,10 +205,10 @@ db.getConfig().find({},function (err, docs) {
   if (err) {
     musicDir = os.homedir() + path.sep + "Music";
   } else {
-    if (docs.length == 0) {
-      setMusicDir(os.homedir() + path.sep + "Music");
-    } else {
+    if (docs.length > 0) {
       musicDir = docs[0].musicDir;
+    } else {
+      setMusicDir(os.homedir() + path.sep + "Music");
     }
   }
 });

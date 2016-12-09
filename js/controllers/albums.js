@@ -1,6 +1,9 @@
 'use strict';
 angular.module('skynetclient.albumsModule',[])
 .controller('albumsCtrl',function($rootScope, $scope, $location, musicQueue, collection) {
+  $scope.$watch('initDone', function(newValue, oldValue) {
+    if (newValue) $scope.reCheckMusic();
+  });
   function setTiles(data) {
     if (data.length > 0) {
       $scope.tiles = data;

@@ -19,6 +19,7 @@
   <body layout="row" ng-app="skynetclient" ng-controller="AppCtrl" ng-cloak md-theme="{{theme}}" md-theme-watch>
     <div ng-show="!initDone" flex layout="column" tabIndex="-1" layout-fill layout-padding layout-align="center center">
       <md-progress-circular class="md-accent md-hue-3" md-mode="indeterminate"></md-progress-circular>
+      <h1 class="md-subhead">Initialising</h1>
     </div>
     <md-sidenav ng-show="initDone" id="sideNav" md-whiteframe="15dp" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')">
       <md-toolbar class="md-tall md-hue-2" md-whiteframe="4dp" layout="row" layout-padding layout-margin layout-fill layout-align="start center">
@@ -68,11 +69,5 @@
     <script src="js/controllers/settings.js"></script>
     <script src="js/controllers/app.js"></script>
     <script src="js/index.js"></script>
-    <script>
-      const ipcR = require('electron').ipcRenderer;
-      ipcR.on('initDone', (event, message) => {
-        angular.element(document.querySelector('[ng-controller="AppCtrl"]')).scope().initDone=true;
-      });
-    </script>
   </body>
 </html>

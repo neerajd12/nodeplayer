@@ -1,5 +1,9 @@
 const fServ = require('electron').remote.require('./js/node_services/fileService');
 const {dialog} = require('electron').remote;
+const ipcR = require('electron').ipcRenderer;
+ipcR.on('initDone', (event, message) => {
+  angular.element(document.querySelector('[ng-controller="AppCtrl"]')).scope().initDone=true;
+});
 /******************* Albums ****************** */
 function getAlbums() {
   return fServ.getDB().getAlbums();

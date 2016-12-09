@@ -15,25 +15,20 @@ function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({width: 1200, height: 600, icon:'img/icon.png'/*, frame:false*/,backgroundColor: '#ffffff'});
   win.setMenu(null);
-  //mainWindow.center();
+  win.center();
   // Open the DevTools.
   //win.webContents.openDevTools();
   win.loadURL(`file://${__dirname}/index.html`);
-  db.getAlbumCount().then(function(count) {
-    if (count == 0) {
+  win.webContents.on('did-finish-load', () => {
+    db.getAlbumCount().then(function(count) {
+      if (count > 0) win.webContents.send('initDone', '123');
       fileservice.initMusicCache().then(function(data) {
          win.webContents.send('initDone', '1234');
       },function(err) {console.log(err);});
-    } else {
-      console.log(1234);
-      win.webContents.on('did-finish-load', () => {
-        win.webContents.send('initDone', '123');
-      });
-    }
-  },function(err) {
-    console.log(err);
+    },function(err) {
+      console.log(err);
+    });
   });
-
   // Emitted when the window is closed.
   win.on('closed', () => {
     // Dereference the window object, usually you would store windows
