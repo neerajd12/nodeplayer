@@ -1,7 +1,7 @@
 'use strict';
 angular.module('skynetclient.app',[])
 .controller('AppCtrl', function ($scope, $rootScope, $route, $location, $mdColors) {
-  $scope.initDone = false;
+  $scope.initDone = -1;
   $scope.themes = ['default', 'defaultLight', 'choclate', 'choclateLight', 'slate', 'slateLight'];
   $scope.theme = localStorage["theme"] || "default";
   $scope.btnFill = 'white';

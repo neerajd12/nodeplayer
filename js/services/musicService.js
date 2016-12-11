@@ -61,15 +61,19 @@ angular.module('skynetclient.musicServiceModule', [])
    };
   this.addTrack = function(newTrack) {
     let existing = self.getTracks();
+    let sendNotification = existing.length < 1;
     if (existing.indexOf(newTrack) == -1) {
       existing.push(newTrack);
       self.reCalibrateQ(existing, false);
     }
+    if (sendNotification) $rootScope.$emit('musicExist');
   };
   this.appendQueue = function(newTracks) {
     let existing = self.getTracks();
+    let sendNotification = existing.length < 1;
     existing = existing.concat(newTracks.filter(function(val){return existing.indexOf(val) == -1}))
     self.reCalibrateQ(existing, false);
+    if (sendNotification) $rootScope.$emit('musicExist');
   };
   this.removeTrack = function(trackToRemove, showNotification) {
     let existing = self.getTracks();

@@ -58,6 +58,7 @@ angular.module('skynetclient.playlistsModule',[])
       $scope.trackData.splice(index, 1);
     } else {
       removeTracksFromPlaylist(tracks, $route.current.params.playlistId);
+      $scope.trackData = [];
     }
     if ($scope.trackData.length < 1) {
       $location.path('playlists');

@@ -12,19 +12,20 @@ supportedFiles=['mp3','wav'],
 mkdirp = require('mkdirp');
 dataDir = os.homedir() + path.sep +'.nodeplayerdata' + path.sep;
 mkdirp(dataDir, function (err) {
-    if (err) console.error(err);
+    if (err) error(err);
 });
-const db = require('./dbService');
+const db = require('./dbService'),
+MSG_TYPE = {UPDATE: 'update', INIT: 'init'};
 let musicDir = '',
-diskWatcher;
+diskWatcher = undefined,
+winRef = undefined;
+
+function notifyUI(msgType) {
+  winRef.send('musicUpdate', msgType);
+};
 
 function removeTrackFromCache(file){
-  let index = musicData['tracks'].findIndex(function(data){
-      return data.fileName === file;
-  });
-  if (index > -1 ) {
-    musicData['tracks'].splice(index, 1);
-  }
+  // TODO: delete from DB
 };
 
 function InitWatcher() {
@@ -41,10 +42,7 @@ function InitWatcher() {
     .on('add', function(path) {
       let tt = path.split('.');
       if (supportedFiles.indexOf(tt[tt.length-1]) > -1) {
-        pushToClient = true;
-        addTracksToCache([path]).then(function(data){
-          log('File', path, 'has been added');
-        }, function(err){});
+        addTracksToCache([path],MSG_TYPE.UPDATE);
       };
     })
     .on('addDir', function(path) {
@@ -101,102 +99,74 @@ function createTrackData(metadata, trackId, albumId, fileName, picture){
   }
 };
 
-function processMetaData(files, callBack){
-  let deferred = Q.defer(),
-  musicData={
-    'albums':[],
-    'tracks':[]
-  },
-  tracksProcessed=0;
-  files.forEach(function(file) {
-    let index = musicData['tracks'].findIndex(function(data){return data.fileName === file;});
-    if (index == -1 ) {
-      try{
-        let parser = mm(fs.createReadStream(file), { duration: true }, function (err, metadata) {
-          if (err) {
-            log(err);
-            tracksProcessed++;
+function processMetaData(files, msgType) {
+  let musicData={'albums':[],'tracks':[]};
+  files.forEach(function (file, index, files) {
+    try{
+      let parser = mm(fs.createReadStream(file), { duration: true }, function (err, metadata) {
+        if (!err) {
+          let image = metadata.picture;
+          let picture = 'img/album-placeholder.jpg';
+          if (image.length > 0) {
+              picture = dataDir+metadata.album.replace(/\W/g,'')+"."+image[0].format;
+              createAlbumArt(image[0].data, picture);
           }
-          else {
-            tracksProcessed++;
-            let image = metadata.picture;
-            let picture = 'img/album-placeholder.jpg';
-            if (image.length > 0) {
-                picture = dataDir+metadata.album.replace(/\W/g,'')+"."+image[0].format;
-                createAlbumArt(image[0].data, picture);
-            }
-            let existingAlbum = musicData['albums'].find(function(data){
-                return data.title === metadata.album;
-            });
-            let trackId = uuid.v1();
-            if(existingAlbum) {
-              existingAlbum.picture = picture
-              musicData['tracks'].push(createTrackData(metadata, trackId, existingAlbum.id, file, picture));
-            } else {
-                let albumId = uuid.v1();
-                musicData['albums'].push(createAlbumData(metadata, albumId, picture));
-                musicData['tracks'].push(createTrackData(metadata, trackId, albumId, file, picture));
-            }
+          let existingAlbum = musicData['albums'].find(function(data){
+              return data.title === metadata.album;
+          });
+          let trackId = uuid.v1();
+          if(existingAlbum) {
+            existingAlbum.picture = picture
+            musicData['tracks'].push(createTrackData(metadata, trackId, existingAlbum.id, file, picture));
+          } else {
+              let albumId = uuid.v1();
+              musicData['albums'].push(createAlbumData(metadata, albumId, picture));
+              musicData['tracks'].push(createTrackData(metadata, trackId, albumId, file, picture));
           }
-          if(tracksProcessed === files.length){
-            deferred.resolve(musicData);
-          }
-        });
-      } catch(err){
-        log(err);
-        deferred.resolve(musicData);
-      }
-    } else {
-      tracksProcessed++;
-      if(tracksProcessed === files.length){
-        deferred.resolve(musicData);
-      }
+        };
+        if(index === files.length-1) {
+          InitWatcher();
+          db.addUpdateAlbums(musicData['albums']).then(function(docs) {
+            notifyUI(msgType);
+          },function(err) {
+            notifyUI(msgType);
+          });
+          db.insertTracks(musicData['tracks']);
+        };
+      });
+    } catch(err){
+      log(err);
     }
   });
-  return deferred.promise;
-}
+};
 
-function addTracksToCache(files) {
-  let deferred = Q.defer();
-  processMetaData(files).then(function(data) {
+function addTracksToCache(files, msgType) {
+  db.getTracksByFileNames(files).then(function(docs) {
+    let existing = docs.map(function(val){return val.fileName});
+    let toAdd = files.filter(function(val){return existing.indexOf(val) == -1;});
+    if (toAdd.length == 0) {
+      InitWatcher();
+      notifyUI(msgType);
+    } else {
+      processMetaData(toAdd, msgType)
+    }
+  },function(err){
     InitWatcher();
-    db.getAlbumCount().then(function(count) {
-      if (count == 0) {
-        db.insertAlbums(data['albums'])
-      } else {
-        db.addUpdateAlbums(data['albums'])
-      }
-    },function(err) {
-      console.log(err);
-    });
-    db.getTrackCount().then(function(count) {
-      if (count == 0) {
-        db.insertTracks(data['tracks'])
-      } else {
-        db.addUpdateTracks(data['tracks'])
-      }
-    },function(err) {
-      console.log(err);
-    });
-    deferred.resolve(data);
-  }, function(err){
-    InitWatcher();
-    deferred.reject(err);
+    notifyUI(msgType);
   });
-  return deferred.promise;
 };
 
 function refreshCache() {
   diskWatcher.close();
   diskWatcher = undefined;
   glob(musicDir+"**/*.mp3", null, function (err, files) {
-    if (!err) addTracksToCache(files);
+    if (!err) addTracksToCache(files,MSG_TYPE.UPDATE);
   });
 };
 
 function setMusicDir(newDir) {
   db.getConfig().update({ musicDir: musicDir}, { musicDir: newDir}, { upsert: true }, function (err, numReplaced) {
-    if(err) console.log(err);
+    if(err) log(err);
   });
   musicDir = newDir;
 };
@@ -214,20 +184,14 @@ db.getConfig().find({},function (err, docs) {
 });
 
 exports.initMusicCache = () => {
-  let deferred = Q.defer();
   glob(musicDir+"**/*.mp3", null, function (err, files) {
-    if (err || files.length <= 0) {
+    if (err || files.length < 1) {
       InitWatcher();
-      deferred.reject(err || 'error getting music');
+      notifyUI(MSG_TYPE.INIT);
     } else {
-      addTracksToCache(files).then(function(data){
-        deferred.resolve(data);
-      }, function(err){
-        deferred.reject(err);
-      });
+      addTracksToCache(files, MSG_TYPE.INIT);
     }
   });
-  return deferred.promise;
 };
 
 exports.updateMusicHome = (newPath) => {
@@ -243,4 +207,8 @@ exports.getMusicDir = () => {
 
 exports.getDB = () => {
   return db;
+};
+
+exports.setWinRef = (win) => {
+  winRef = win;
 };

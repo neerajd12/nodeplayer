@@ -17,11 +17,11 @@
     </style>
   </head>
   <body layout="row" ng-app="skynetclient" ng-controller="AppCtrl" ng-cloak md-theme="{{theme}}" md-theme-watch>
-    <div ng-show="!initDone" flex layout="column" tabIndex="-1" layout-fill layout-padding layout-align="center center">
+    <div ng-show="initDone == -1" flex layout="column" tabIndex="-1" layout-fill layout-padding layout-align="center center">
       <md-progress-circular class="md-accent md-hue-3" md-mode="indeterminate"></md-progress-circular>
       <h1 class="md-subhead">Initialising</h1>
     </div>
-    <md-sidenav ng-show="initDone" id="sideNav" md-whiteframe="15dp" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')">
+    <md-sidenav ng-show="initDone != -1" id="sideNav" md-whiteframe="15dp" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')">
       <md-toolbar class="md-tall md-hue-2" md-whiteframe="4dp" layout="row" layout-padding layout-margin layout-fill layout-align="start center">
         <img src="img/user_placeholder.png" class="avatar" alt="Profile Photo" />
       </md-toolbar>
@@ -34,7 +34,7 @@
         </md-list>
       </md-content>
     </md-sidenav>
-    <div ng-show="initDone" flex layout="column" tabIndex="-1" role="main">
+    <div ng-show="initDone != -1" flex layout="column" tabIndex="-1" role="main">
       <md-toolbar layout="row" class="md-hue-2" md-whiteframe="4dp">
         <div class="md-toolbar-tools" layout-align="start center">
           <search-Ui></search-Ui>

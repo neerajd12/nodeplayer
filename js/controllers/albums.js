@@ -2,7 +2,7 @@
 angular.module('skynetclient.albumsModule',[])
 .controller('albumsCtrl',function($rootScope, $scope, $location, musicQueue, collection) {
   $scope.$watch('initDone', function(newValue, oldValue) {
-    if (newValue) $scope.reCheckMusic();
+    if (newValue != oldValue) $scope.reCheckMusic();
   });
   function setTiles(data) {
     $scope.tiles = data;

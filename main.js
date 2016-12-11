@@ -16,20 +16,11 @@ function createWindow() {
   win = new BrowserWindow({width: 1200, height: 600, icon:'img/icon.png'/*, frame:false*/,backgroundColor: '#ffffff'});
   win.setMenu(null);
   win.center();
-  // Open the DevTools.
-  //win.webContents.openDevTools();
   win.loadURL(`file://${__dirname}/index.html`);
   win.webContents.on('did-finish-load', () => {
-    db.getAlbumCount().then(function(count) {
-      if (count > 0) win.webContents.send('initDone', '123');
-      fileservice.initMusicCache().then(function(data) {
-         win.webContents.send('initDone', '1234');
-      },function(err) {
-        win.webContents.send('initDone', '1234');
-      });
-    },function(err) {
-      console.log(err);
-    });
+    //win.webContents.openDevTools();
+    fileservice.setWinRef(win);
+    fileservice.initMusicCache();
   });
   // Emitted when the window is closed.
   win.on('closed', () => {

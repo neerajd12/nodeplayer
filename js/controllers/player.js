@@ -183,6 +183,7 @@ angular.module('skynetclient.playerModule', [])
     clearAudio();
   });
   $rootScope.$on('musicExist', function() {
-    setTrackAndPlay(musicQueue.getCurrent(), false);
+    if ($scope.track.duration == 0) setTrackAndPlay(musicQueue.getCurrent(), false);
   });
+  resetTrack();
 });

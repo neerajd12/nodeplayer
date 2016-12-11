@@ -58,7 +58,7 @@ exports.getAlbumByName = (title) => {
 exports.getAlbumByTrackId = (trackId) => {
   let deferred = Q.defer();
   getTrackById(trackId).then(function(doc){
-    deferred.resolve(getAlbumById(doc.id));
+    deferred.resolve(exports.getAlbumById(doc.id));
   },function(err){
     deferred.reject(err);
   });
@@ -67,7 +67,7 @@ exports.getAlbumByTrackId = (trackId) => {
 exports.getAlbumByTrackName = (trackName) => {
   let deferred = Q.defer();
   getTrackByFileName(trackName).then(function(doc){
-    deferred.resolve(getAlbumById(doc.id));
+    deferred.resolve(exports.getAlbumById(doc.id));
   },function(err){
     deferred.reject(err);
   });
@@ -79,14 +79,14 @@ exports.insertAlbums = (newAlbums) => {
   });
 };
 exports.addUpdateAlbums = (albumsToAdd) => {
-  albumsToAdd.forEach(function(album) {
+  let deferred = Q.defer();
+  albumsToAdd.forEach(function(album, index, albumsToAdd) {
     albums.findOne({'title': album.title},function (err, docs) {
-      if (!err && !docs) {
-        console.log(album.title);
-        insertAlbums(album);
-      }
+      if (!err && !docs) exports.insertAlbums(album);
     });
+    if (index === albumsToAdd.length-1) deferred.resolve();
   });
+  return deferred.promise;
 };
 exports.addUpdateAlbum = (album) => {
   albums.update({ title: album.title }, album, function (err, numReplaced) {
@@ -176,10 +176,7 @@ exports.insertTracks = (newtracks) => {
 exports.addUpdateTracks = (tracksToAdd) => {
   tracksToAdd.forEach(function(track) {
     tracksToAdd.findOne({'fileName': track.fileName},function (err, docs) {
-      if (!err && !docs) {
-        console.log(track.title);
-        insertTracks(album);
-      }
+      if (!err && !docs) insertTracks(album);
     });
   });
 };

@@ -1,8 +1,12 @@
 const fServ = require('electron').remote.require('./js/node_services/fileService');
 const {dialog} = require('electron').remote;
 const ipcR = require('electron').ipcRenderer;
-ipcR.on('initDone', (event, message) => {
-  angular.element(document.querySelector('[ng-controller="AppCtrl"]')).scope().initDone=true;
+ipcR.on('musicUpdate', (event, message) => {
+  if (message === 'init') {
+    angular.element(document.querySelector('[ng-controller="AppCtrl"]')).scope().initDone=0;
+  } else if (message === 'update') {
+    angular.element(document.querySelector('[ng-controller="AppCtrl"]')).scope().initDone=1;
+  }
 });
 /******************* Albums ****************** */
 function getAlbums() {
