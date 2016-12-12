@@ -81,15 +81,15 @@ angular.module('skynetclient.playerModule', [])
       icon: 'volume_up',
       fill:'white',
       action: function() {
-        if (this.icon === 'volume_off') {
-          this.label = 'Mute';
-          this.icon = 'volume_up';
-          this.fill = 'white',
-          $scope.audio.muted = true;
-        } else {
+        if (this.icon === 'volume_up') {
           this.label = 'unMute';
           this.icon = 'volume_off';
           this.fill = '#c23f3f',
+          $scope.audio.muted = true;
+        } else {
+          this.label = 'Mute';
+          this.icon = 'volume_up';
+          this.fill = 'white',
           $scope.audio.muted = false;
         }
       }
