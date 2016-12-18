@@ -42,6 +42,7 @@
     "watchjs": "0.0.0"
   },
   "devDependencies": {
-    "electron-builder": "^10.6.1"
+    "electron-builder": "^10.6.1",
+    "electron-prebuilt": "^1.4.12"
   }
 }
