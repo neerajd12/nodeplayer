@@ -14,7 +14,7 @@
       <md-tooltip md-direction="top">{{btn.label}}</md-tooltip>
       <ng-md-icon icon="{{btn.icon}}" options='{"duration": 375}' style="fill:{{btn.fill}}"></ng-md-icon>
     </md-button>
-    <md-slider ng-model="audio.volume" flex="10" class="md-accent md-hue-3" style="padding:0px;cursor:pointer;" min="0" step="0.1" max="1" aria-label="player volume"></md-slider>
+    <md-slider md-discrete ng-model="volume" flex="10" class="md-accent md-hue-3" style="padding:0px;padding-right:10px;cursor:pointer;" min="0" step="1" max="100" aria-label="player volume"></md-slider>
   </div>
   <div hide-gt-xs layout="row" layout-align="end end">
     <md-fab-speed-dial class="md-scale md-fab-bottom-right" md-open="fabOpen" md-direction="up">
