@@ -99,10 +99,17 @@ angular.module('skynetclient.playerModule', [])
   $scope.audio = new Audio();
   $scope.audio.autoplay = true;
   $scope.audio.defaultMuted = false;
-  $scope.audio.volume = parseFloat(localStorage["playerVolume"]) || 1;
   $scope.audio.onvolumechange = function() {
     localStorage["playerVolume"] = $scope.audio.volume;
+    $scope.volume = $scope.audio.volume*100;
   };
+  $scope.audio.volume = parseFloat(localStorage["playerVolume"]) || 1;
+  $scope.$watch('volume', function(newValue, oldValue) {
+    if (newValue != oldValue) {
+      $scope.audio.volume = newValue/100;
+    }
+  });
+
   $scope.audio.onpause = function() {
     Notification.primary("player paused !!!");
   };
