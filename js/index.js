@@ -165,5 +165,5 @@
       $rootScope.$on("$includeContentLoaded", function(event, templateName){
         $rootScope.applyTheme();
       });
-    });;
+    });
 }());
