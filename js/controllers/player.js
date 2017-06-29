@@ -52,20 +52,18 @@ angular.module('skynetclient.playerModule', [])
       fill:'white',
       action : function() {
         if (this.icon === 'play_arrow') {
-          this.label = 'Pause';
-          this.icon = 'pause';
-          if($scope.audio.src === ''){
+          if($scope.audio.src === '') {
             startMusic(musicQueue.getCurrent());
-          } else {
-            if ($scope.audio.paused) {
-              $scope.audio.play();
-            }
+          } else if ($scope.audio.paused) {
+            $scope.audio.play();
           }
         } else {
-          this.label = 'play';
-          this.icon = 'play_arrow';
           $scope.audio.pause();
         }
+      },
+      setView: function(label, icon) {
+        this.label = label;
+        this.icon = icon;
       }
     },
     playnext: {
@@ -82,15 +80,22 @@ angular.module('skynetclient.playerModule', [])
       fill:'white',
       action: function() {
         if (this.icon === 'volume_up') {
+          $scope.audio.muted = true;
+          $scope.volume = 0;
+        } else {
+          $scope.audio.muted = false;
+          $scope.volume = (parseFloat(localStorage["playerVolume"]) || 1)*100;
+        }
+      },
+      updateView: function() {
+        if($scope.audio.muted || $scope.volume === 0) {
           this.label = 'unMute';
           this.icon = 'volume_off';
-          this.fill = '#c23f3f',
-          $scope.audio.muted = true;
+          this.fill = '#c23f3f';
         } else {
           this.label = 'Mute';
           this.icon = 'volume_up';
-          this.fill = 'white',
-          $scope.audio.muted = false;
+          this.fill = 'white';
         }
       }
     }
@@ -99,10 +104,15 @@ angular.module('skynetclient.playerModule', [])
   $scope.audio = new Audio();
   $scope.audio.autoplay = true;
   $scope.audio.defaultMuted = false;
+
   $scope.audio.onvolumechange = function() {
-    localStorage["playerVolume"] = $scope.audio.volume;
     $scope.volume = $scope.audio.volume*100;
+    $scope.mediaButtons.volume.updateView();
+    if (!$scope.audio.muted) {
+      localStorage["playerVolume"] = $scope.audio.volume;
+    }
   };
+
   $scope.audio.volume = parseFloat(localStorage["playerVolume"]) || 1;
   $scope.$watch('volume', function(newValue, oldValue) {
     if (newValue != oldValue) {
@@ -112,14 +122,18 @@ angular.module('skynetclient.playerModule', [])
 
   $scope.audio.onpause = function() {
     Notification.primary("player paused !!!");
+    $scope.mediaButtons.play.setView('play', 'play_arrow');
   };
+
   $scope.audio.onended = function() {
     if (angular.isDefined(trackPoller)) {
       $interval.cancel(trackPoller);
       trackPoller = undefined;
     }
+    $scope.mediaButtons.play.setView('play', 'play_arrow');
     playAudio('next');
   };
+
   $scope.audio.onplaying = function() {
     if (angular.isUndefined(trackPoller)) {
       trackPoller = $interval(function() {
@@ -127,7 +141,9 @@ angular.module('skynetclient.playerModule', [])
         $scope.track['duration'] = $scope.audio.duration;
       }, 10);
     }
+    $scope.mediaButtons.play.setView('Pause', 'pause');
   };
+
   $scope.updateTrackTime = function() {
     $scope.audio.currentTime = $scope.track['currentTime'];
   };
