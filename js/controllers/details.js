@@ -50,7 +50,7 @@ angular.module('skynetclient.detailsViewModule',[])
       $scope.trackActions[1].icon = 'queue_music';
       $scope.trackActions[1].color = 'md-accent md-hue-3';
     }
-    $scope.clickedTrackId = track.id;
+    $scope.clickedTrackId = track._id;
   };
 
   $rootScope.$on('currentTrackChanged', function() {
@@ -68,5 +68,11 @@ angular.module('skynetclient.detailsViewModule',[])
       $scope.coverData.actions[3].label='Add to Favorite';
     }
   };
+  $scope.trackData.map(function(t) {
+    t.favIcon = 'favorite_border'
+    if ($scope.favData.indexOf(t.fileName) > -1) {
+      t.favIcon = 'favorite';
+    }
+  });
   checkCoverFavIcon();
 });

@@ -61,9 +61,10 @@ angular.module('skynetclient.playerModule', [])
           $scope.audio.pause();
         }
       },
-      setView: function(label, icon) {
+      setView: function(label, icon, fill) {
         this.label = label;
         this.icon = icon;
+        this.fill = fill;
       }
     },
     playnext: {
@@ -122,7 +123,7 @@ angular.module('skynetclient.playerModule', [])
 
   $scope.audio.onpause = function() {
     Notification.primary("player paused !!!");
-    $scope.mediaButtons.play.setView('play', 'play_arrow');
+    $scope.mediaButtons.play.setView('play', 'play_arrow', 'white');
   };
 
   $scope.audio.onended = function() {
@@ -130,7 +131,7 @@ angular.module('skynetclient.playerModule', [])
       $interval.cancel(trackPoller);
       trackPoller = undefined;
     }
-    $scope.mediaButtons.play.setView('play', 'play_arrow');
+    $scope.mediaButtons.play.setView('play', 'play_arrow', 'white');
     playAudio('next');
   };
 
@@ -141,7 +142,7 @@ angular.module('skynetclient.playerModule', [])
         $scope.track['duration'] = $scope.audio.duration;
       }, 10);
     }
-    $scope.mediaButtons.play.setView('Pause', 'pause');
+    $scope.mediaButtons.play.setView('Pause', 'pause', '#c23f3f');
   };
 
   $scope.updateTrackTime = function() {
@@ -170,12 +171,14 @@ angular.module('skynetclient.playerModule', [])
       return;
     }
     getTrackByFileName(track).then(function(trk) {
-      $scope.track = trk;
-      $scope.track['currentTime'] = 0;
-      if (doPlay && $scope.track.fileName) {
-        $scope.audio.src = $scope.track.fileName;
-        $scope.audio.play();
-        $rootScope.$emit('currentTrackChanged');
+      if (trk) {
+        $scope.track = trk;
+        $scope.track['currentTime'] = 0;
+        if (doPlay && $scope.track.fileName) {
+          $scope.audio.src = $scope.track.fileName;
+          $scope.audio.play();
+          $rootScope.$emit('currentTrackChanged');
+        }  
       }
     },function(err) {
       resetTrack();

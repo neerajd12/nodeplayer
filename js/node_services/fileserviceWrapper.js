@@ -45,10 +45,10 @@ function searchTracks(searchText) {
 };
 /******************* Favs ****************** */
 function getFavs() {
-  return fServ.getDB().getFavTracks(albumId);
+  return fServ.getDB().getFavTracks();
 };
 function updateTracksFavIcon(tracks, icon) {
-  fServ.getDB().updateTracksFavIcon(tracks.map(function(val){return val.id}),icon);
+  fServ.getDB().updateTracksFavIcon(tracks.map(function(val){return val.fileName}),icon);
 };
 function updateAlbumFavIcon(albumId, icon) {
   fServ.getDB().updateAlbumFavIcon(albumId, icon);
@@ -67,10 +67,10 @@ function getPlaylistArt(playlistId) {
   return fServ.getDB().getPlaylistArt(playlistId);
 };
 function addTracksToPlayList(tracks, playlistId) {
-  fServ.getDB().addTracksToPlayList(tracks.map(function(val){return val.id}), playlistId);
+  fServ.getDB().addTracksToPlayList(tracks.map(function(val){return val.fileName}), playlistId);
 };
 function removeTracksFromPlaylist(tracks, playlistId) {
-  fServ.getDB().removeTracksFromPlaylist(tracks.map(function(val){return val.id}), playlistId);
+  fServ.getDB().removeTracksFromPlaylist(tracks.map(function(val){return val.fileName}), playlistId);
 };
 function addAlbumToPlayList(albumId, playlistId) {
   fServ.getDB().addAlbumToPlayList(albumId, playlistId);

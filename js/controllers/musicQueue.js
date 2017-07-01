@@ -1,15 +1,16 @@
 'use strict';
 angular.module('skynetclient.musicQueueModule',[])
-.controller('musicQueueCtrl', function ($scope, $rootScope, $route, musicQueue, buttonFactory, coverData, trackData) {
+.controller('musicQueueCtrl', function ($scope, $rootScope, $route, musicQueue, buttonFactory, coverData, trackData, favData) {
   $scope.coverData = coverData;
   $scope.trackData = trackData;
+  $scope.favData = favData;
   $scope.coverData.actions = buttonFactory.getMusicButtons();
   $scope.trackActions = buttonFactory.getMusicButtons();
 
   var clearQ = function (trackData, trackId) {
     if (trackId) {
       musicQueue.removeTrack(trackData.fileName);
-      let index = $scope.trackData.findIndex(function(data){return data.id == trackId});
+      let index = $scope.trackData.findIndex(function(data){return data._id == trackId});
       $scope.trackData.splice(index, 1);
     } else {
       musicQueue.removeTracks(trackData.map(function(val){return val.fileName}));

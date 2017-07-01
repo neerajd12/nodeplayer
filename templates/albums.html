@@ -7,14 +7,14 @@
 </div>
 <div ng-show="!loading && tiles.length > 0" layout-padding md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}" >
   <md-grid-list md-row-height="1:1" md-cols-xs="2" md-cols-sm="3" md-cols-md="3" md-cols-gt-md="4">
-    <md-grid-tile ng-repeat="tile in tiles" data-id="{{tile.id}}" ng-click="showAlbumDetails(tile, $event)" ng-mouseenter="tile.showButton=true" ng-mouseleave="tile.showButton=false" class="animated bounceInDown">
+    <md-grid-tile ng-repeat="tile in tiles" data-id="{{tile._id}}" ng-click="showAlbumDetails(tile, $event)" ng-mouseenter="tile.showButton=true" ng-mouseleave="tile.showButton=false" class="animated bounceInDown">
       <img ng-src="{{tile.picture}}" style="height:100%;width:100%;"/>
       <md-grid-tile-footer class="albumLayover" layout-align="center center" ng-show="tile.showButton">
-        <md-button class="md-fab md-accent md-hue-3" ng-click="addAlbumToQ(tile.id, $event)" aria-label="Play">
+        <md-button class="md-fab md-accent md-hue-3" ng-click="addAlbumToQ(tile._id, $event)" aria-label="Play">
           <md-tooltip>Add to Queue</md-tooltip>
           <ng-md-icon icon="add_to_queue" style="fill:white"></ng-md-icon>
         </md-button>
-        <md-button class="md-fab md-accent md-hue-3" ng-click="playAlbumTracks(tile.id, $event)" aria-label="Play">
+        <md-button class="md-fab md-accent md-hue-3" ng-click="playAlbumTracks(tile._id, $event)" aria-label="Play">
           <md-tooltip>Play</md-tooltip>
           <ng-md-icon icon="playlist_play" style="fill:white"></ng-md-icon>
         </md-button>

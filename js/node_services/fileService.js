@@ -16,16 +16,17 @@ mkdirp(dataDir, function (err) {
 });
 const db = require('./dbService'),
 MSG_TYPE = {UPDATE: 'update', INIT: 'init'};
-let musicDir = '',
+let musicDir = os.homedir() + path.sep + "Music" + path.sep,
 diskWatcher = undefined,
 winRef = undefined;
 
 function notifyUI(msgType) {
   winRef.send('musicUpdate', msgType);
+  InitWatcher();
 };
 
-function removeTrackFromCache(file){
-  // TODO: delete from DB
+function removeTrackFromCache(file) {
+  db.removeTrack(file);
 };
 
 function InitWatcher() {
@@ -42,7 +43,7 @@ function InitWatcher() {
     .on('add', function(path) {
       let tt = path.split('.');
       if (supportedFiles.indexOf(tt[tt.length-1]) > -1) {
-        addTracksToCache([path],MSG_TYPE.UPDATE);
+        processMetaData([path],MSG_TYPE.UPDATE);
       };
     })
     .on('addDir', function(path) {
@@ -75,7 +76,7 @@ function createAlbumArt(bitmap, file) {
 
 function createAlbumData(metadata, albumId, picture){
   return {
-    'id': albumId,
+    '_id': albumId,
     'title': metadata.album,
     'picture': picture,
     'genre': metadata.genre,
@@ -86,7 +87,7 @@ function createAlbumData(metadata, albumId, picture){
 
 function createTrackData(metadata, trackId, albumId, fileName, picture){
   return {
-    'id': trackId,
+    '_id': trackId,
     'albumId': albumId,
     'title': metadata.title,
     'album': metadata.album,
@@ -94,74 +95,80 @@ function createTrackData(metadata, trackId, albumId, fileName, picture){
     'duration': (metadata.duration/60).toFixed(2),
     'number': metadata.disk.no,
     'fileName' : fileName,
-    'picture': picture,
-    'favIcon': 'favorite_border'
+    'picture': picture
   }
 };
 
-function processMetaData(files, msgType) {
+function createMusicData(files) {
   let musicData={'albums':[],'tracks':[]};
-  files.forEach(function (file, index, files) {
+  let deferred = Q.defer();
+  files.forEach(function(file){
     try{
-      let parser = mm(fs.createReadStream(file), { duration: true }, function (err, metadata) {
-        if (!err) {
+      mm(fs.createReadStream(file), { duration: true }, function (err, metadata) {
+        if (err) {
+          musicData['tracks'].push({_id:'none'});
+        } else {
           let image = metadata.picture;
           let picture = 'img/album-placeholder.jpg';
           if (image.length > 0) {
-              picture = dataDir+metadata.album.replace(/\W/g,'')+"."+image[0].format;
+              picture = dataDir+metadata.album.replace(/\W/g,'')+"_"+metadata.year+"."+image[0].format;
               createAlbumArt(image[0].data, picture);
           }
           let existingAlbum = musicData['albums'].find(function(data){
-              return data.title === metadata.album;
+              if (metadata.albumartist && data.albumartist) {
+                return data.title === metadata.album
+                        && data.year === metadata.year
+                        && data.albumartist.toString() === metadata.albumartist.toString();
+              }
+              return data.title === metadata.album && data.year === metadata.year;
           });
           let trackId = uuid.v1();
           if(existingAlbum) {
-            existingAlbum.picture = picture
-            musicData['tracks'].push(createTrackData(metadata, trackId, existingAlbum.id, file, picture));
+            if (existingAlbum.picture == 'img/album-placeholder.jpg') {
+              existingAlbum.picture = picture;
+            }
+            if (metadata.year && existingAlbum.year.length == 0) {
+              existingAlbum.year = metadata.year
+            }
+            if (metadata.genre) {
+              existingAlbum.genre = [...new Set([...existingAlbum.genre ,...metadata.genre])];
+            }
+            if (metadata.artist) {
+              existingAlbum.artist = [...new Set([...existingAlbum.artist ,...metadata.artist])];
+            }
+            musicData['tracks'].push(createTrackData(metadata, trackId, existingAlbum._id, file, existingAlbum.picture));
           } else {
               let albumId = uuid.v1();
               musicData['albums'].push(createAlbumData(metadata, albumId, picture));
               musicData['tracks'].push(createTrackData(metadata, trackId, albumId, file, picture));
           }
         };
-        if(index === files.length-1) {
-          InitWatcher();
-          db.addUpdateAlbums(musicData['albums']).then(function(docs) {
-            notifyUI(msgType);
-          },function(err) {
-            notifyUI(msgType);
-          });
-          db.insertTracks(musicData['tracks']);
-        };
+        if (musicData['tracks'].length == files.length) {
+          deferred.resolve(musicData);
+        }
       });
-    } catch(err){
+    } catch(err) {
       log(err);
+      musicData['tracks'].push({_id:'none'});
+      if (musicData['tracks'].length == files.length) {
+        deferred.resolve(musicData);
+      }
     }
   });
-};
+  return deferred.promise;
+}
 
-function addTracksToCache(files, msgType) {
-  db.getTracksByFileNames(files).then(function(docs) {
-    let existing = docs.map(function(val){return val.fileName});
-    let toAdd = files.filter(function(val){return existing.indexOf(val) == -1;});
-    if (toAdd.length == 0) {
-      InitWatcher();
-      notifyUI(msgType);
+function processMetaData(files, msgType) {
+  createMusicData(files).then(function(musicData){
+    musicData['tracks'] = musicData['tracks'].filter(function(t){return t._id != 'none' });
+    if (msgType == MSG_TYPE.UPDATE) {
+      db.addUpdateAlbums(musicData['albums']).then(function(docs){},function(err){});
+      db.addUpdateTracks(musicData['tracks']).then(function() {notifyUI(msgType);},function(err) {notifyUI(msgType);});
     } else {
-      processMetaData(toAdd, msgType)
+      db.insertAlbums(musicData['albums']).then(function(){},function(err){});
+      db.insertTracks(musicData['tracks']).then(function() {notifyUI(msgType);},function(err) {notifyUI(msgType);});
     }
-  },function(err){
-    InitWatcher();
-    notifyUI(msgType);
-  });
-};
-
-function refreshCache() {
-  diskWatcher.close();
-  diskWatcher = undefined;
-  glob(musicDir+"**/*.mp3", null, function (err, files) {
-    if (!err) addTracksToCache(files,MSG_TYPE.UPDATE);
-  });
+  },function(err){notifyUI(msgType);});
 };
 
 function setMusicDir(newDir) {
@@ -172,24 +179,19 @@ function setMusicDir(newDir) {
 };
 
 db.getConfig().find({},function (err, docs) {
-  if (err) {
-    musicDir = os.homedir() + path.sep + "Music";
+  if (!err && docs && docs.length > 0) {
+    musicDir = docs[0].musicDir;
   } else {
-    if (docs.length > 0) {
-      musicDir = docs[0].musicDir;
-    } else {
-      setMusicDir(os.homedir() + path.sep + "Music");
-    }
+    setMusicDir(musicDir);
   }
 });
 
 exports.initMusicCache = () => {
   glob(musicDir+"**/*.mp3", null, function (err, files) {
     if (err || files.length < 1) {
-      InitWatcher();
       notifyUI(MSG_TYPE.INIT);
     } else {
-      addTracksToCache(files, MSG_TYPE.INIT);
+      processMetaData(files, MSG_TYPE.INIT)
     }
   });
 };
@@ -197,7 +199,20 @@ exports.initMusicCache = () => {
 exports.updateMusicHome = (newPath) => {
   if ((newPath + path.sep) !== musicDir) {
     setMusicDir(newPath + path.sep);
-    refreshCache();
+    diskWatcher.close();
+    diskWatcher = undefined;
+    glob(musicDir+"**/*.mp3", null, function (err, files) {
+      if (!err && files.length > 0) {
+        db.getTracksByFileNames(files).then(function(docs) {
+          let existing = docs.map(function(val){return val.fileName});
+          let toAdd = files.filter(function(val){return existing.indexOf(val) == -1;});
+          if (toAdd.length != 0) {
+            processMetaData(toAdd, MSG_TYPE.UPDATE)
+          }
+        },function(err) {
+        });
+      }
+    });
   }
 };
 

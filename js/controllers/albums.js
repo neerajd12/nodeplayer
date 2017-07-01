@@ -19,7 +19,7 @@ angular.module('skynetclient.albumsModule',[])
   };
   $scope.showAlbumDetails = function(album, event) {
     album.showButton=false;
-    $location.path("albums/"+album.id+"/song/-0");
+    $location.path("albums/"+album._id+"/song/-0");
   };
   $scope.addAlbumToQ = function(albumId, event){
     event.stopPropagation();
@@ -35,9 +35,10 @@ angular.module('skynetclient.albumsModule',[])
   };
   setTiles(collection);
 })
-.controller('albumsDetailsCtrl',function($scope, $routeParams, musicQueue, buttonFactory, coverData, trackData) {
+.controller('albumsDetailsCtrl',function($scope, $routeParams, musicQueue, buttonFactory, coverData, trackData, favData) {
   $scope.coverData = coverData;
   $scope.trackData = trackData;
+  $scope.favData = favData;
   $scope.coverData.actions = buttonFactory.getMusicButtons();
   $scope.trackActions = buttonFactory.getMusicButtons();
 
@@ -47,9 +48,10 @@ angular.module('skynetclient.albumsModule',[])
       return a.title === $routeParams['songName'] ? 0 : 1;
     });
   }
+  $scope.isArray = angular.isArray;
   $scope.coverData['info'] = [
-    { title:'Genre',val:$scope.coverData.genre.toString()},
-    { title:'Artist',val:$scope.coverData.artist.toString()},
-    { title:'Year', val:$scope.coverData.year}
+    { title:'Genre',val:$scope.coverData.genre},
+    { title:'Year', val:$scope.coverData.year},
+    { title:'Artist',val:$scope.coverData.artist}
   ];
 });

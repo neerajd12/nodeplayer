@@ -130,6 +130,9 @@
             },
             coverData: function() {
               return [];
+            },
+            favData: function() {
+              return getFavs();
             }
           }
         })
@@ -142,6 +145,9 @@
             },
             trackData: function($route){
               return getTracksByAlbumId($route.current.params.albumId);
+            },
+            favData: function($route) {
+              return getFavs();
             }
           }
         })
@@ -154,6 +160,9 @@
             },
             coverData: function($route) {
               return [];
+            },
+            favData: function() {
+              return getFavs();
             }
           }
         })
