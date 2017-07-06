@@ -170,6 +170,7 @@ angular.module('skynetclient.playerModule', [])
       resetTrack();
       return;
     }
+    console.log(track);
     getTrackByFileName(track).then(function(trk) {
       if (trk) {
         $scope.track = trk;
@@ -178,7 +179,7 @@ angular.module('skynetclient.playerModule', [])
           $scope.audio.src = $scope.track.fileName;
           $scope.audio.play();
           $rootScope.$emit('currentTrackChanged');
-        }  
+        }
       }
     },function(err) {
       resetTrack();
@@ -186,7 +187,8 @@ angular.module('skynetclient.playerModule', [])
   };
 
   function startMusic(toPlay) {
-    clearAudio();
+    $scope.audio.pause();
+    $scope.audio.src='';
     setTrackAndPlay(toPlay, true);
   };
 
@@ -202,8 +204,8 @@ angular.module('skynetclient.playerModule', [])
     }
   };
 
-  $rootScope.$on('trackAddedToTop', function() {
-    startMusic(musicQueue.getCurrent());
+  $rootScope.$on('queueOrderChanged', function() {
+      startMusic(musicQueue.getCurrent());
   });
   $rootScope.$on('queueEmpty', function() {
     clearAudio();
@@ -211,5 +213,8 @@ angular.module('skynetclient.playerModule', [])
   $rootScope.$on('musicExist', function() {
     if ($scope.track.duration == 0) setTrackAndPlay(musicQueue.getCurrent(), false);
   });
+  $rootScope.$on('tracksAdded', function() {
+    if ($scope.track.duration == 0) setTrackAndPlay(musicQueue.getCurrent(), false);
+});
   resetTrack();
 });

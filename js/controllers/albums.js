@@ -1,14 +1,19 @@
 'use strict';
 angular.module('skynetclient.albumsModule',[])
-.controller('albumsCtrl',function($rootScope, $scope, $location, musicQueue, collection) {
-  $scope.$watch('initDone', function(newValue, oldValue) {
-    if (newValue != oldValue) $scope.reCheckMusic();
+.controller('albumsCtrl',function($rootScope, $scope, $location, musicQueue, Notification, collection) {
+  $scope.tiles=[];
+
+  $rootScope.$on('musicExist', function() {
+    $scope.reCheckMusic();
   });
   function setTiles(data) {
-    $scope.tiles = data;
-    $scope.loading = false;
-    $rootScope.$emit('musicExist');
-  }
+    $scope.$evalAsync(function() {
+      if (data.length > 0) {
+        $scope.tiles = data;
+        $scope.loading = false;
+      }
+    });
+  };
   $scope.reCheckMusic = function() {
     $scope.loading = true;
     getAlbums().then(function(data) {

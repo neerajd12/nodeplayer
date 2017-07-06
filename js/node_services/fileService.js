@@ -11,25 +11,26 @@ log = console.log.bind(console),
 supportedFiles=['mp3','wav'],
 mkdirp = require('mkdirp');
 dataDir = os.homedir() + path.sep +'.nodeplayerdata' + path.sep;
-mkdirp(dataDir, function (err) {
+mkdirp(dataDir, (err) => {
     if (err) error(err);
 });
 const db = require('./dbService'),
-MSG_TYPE = {UPDATE: 'update', INIT: 'init'};
+MSG_TYPE = {UPDATE: 1, INIT: 0};
 let musicDir = os.homedir() + path.sep + "Music" + path.sep,
 diskWatcher = undefined,
-winRef = undefined;
+winRef = undefined,
+cacheing = false;
 
-function notifyUI(msgType) {
+notifyUI = (msgType) => {
   winRef.send('musicUpdate', msgType);
   InitWatcher();
 };
 
-function removeTrackFromCache(file) {
+removeTrackFromCache = (file) => {
   db.removeTrack(file);
 };
 
-function InitWatcher() {
+InitWatcher = () => {
   if (!diskWatcher) {
     diskWatcher = chokidar.watch(musicDir, {
         ignored: /[\/\\]\./,
@@ -40,29 +41,38 @@ function InitWatcher() {
         ignoreInitial:true
       });
     diskWatcher
-    .on('add', function(path) {
+    .on('add', (path) => {
       let tt = path.split('.');
       if (supportedFiles.indexOf(tt[tt.length-1]) > -1) {
-        processMetaData([path],MSG_TYPE.UPDATE);
+        if (!cacheing) {
+          console.log(2);
+          cacheing = true;
+          setTimeout(initMusicCache, 1000);
+        }
       };
     })
-    .on('addDir', function(path) {
+    .on('addDir', (path) => {
+      if (!cacheing) {
+        console.log(1);
+        cacheing = true;
+        setTimeout(initMusicCache, 1000);
+      }
       log('Directory', path, 'has been added');
     })
-    .on('unlink', function(path) {
+    .on('unlink', (path) => {
       log('File', path, 'has been removed');
       removeTrackFromCache(path);
     })
-    .on('unlinkDir', function(path) {
+    .on('unlinkDir', (path) => {
       log('Directory', path, 'has been removed');
     })
-    .on('error', function(error) { log('Error happened', error); })
-    .on('ready', function() { log('Initial scan complete. Ready for changes.'); });
+    .on('error', (error) => { log('Error happened', error); })
+    .on('ready', () => { log('Initial scan complete. Ready for changes.'); });
   }
 };
 
-function createAlbumArt(bitmap, file) {
-  fs.exists(file, function (exists) {
+ createAlbumArt = (bitmap, file) => {
+  fs.exists(file, (exists) => {
     if(!exists){
       try{
         fs.writeFileSync(file, bitmap);
@@ -74,7 +84,7 @@ function createAlbumArt(bitmap, file) {
   });
 };
 
-function createAlbumData(metadata, albumId, picture){
+createAlbumData = (metadata, albumId, picture) => {
   return {
     '_id': albumId,
     'title': metadata.album,
@@ -85,7 +95,7 @@ function createAlbumData(metadata, albumId, picture){
   };
 };
 
-function createTrackData(metadata, trackId, albumId, fileName, picture){
+createTrackData = (metadata, trackId, albumId, fileName, picture) => {
   return {
     '_id': trackId,
     'albumId': albumId,
@@ -99,12 +109,12 @@ function createTrackData(metadata, trackId, albumId, fileName, picture){
   }
 };
 
-function createMusicData(files) {
+createMusicData = (files) => {
   let musicData={'albums':[],'tracks':[]};
   let deferred = Q.defer();
-  files.forEach(function(file){
+  files.forEach((file) => {
     try{
-      mm(fs.createReadStream(file), { duration: true }, function (err, metadata) {
+      mm(fs.createReadStream(file), { duration: true }, (err, metadata) => {
         if (err) {
           musicData['tracks'].push({_id:'none'});
         } else {
@@ -114,13 +124,14 @@ function createMusicData(files) {
               picture = dataDir+metadata.album.replace(/\W/g,'')+"_"+metadata.year+"."+image[0].format;
               createAlbumArt(image[0].data, picture);
           }
-          let existingAlbum = musicData['albums'].find(function(data){
+          let existingAlbum = musicData['albums'].find((data) => {
               if (metadata.albumartist && data.albumartist) {
                 return data.title === metadata.album
                         && data.year === metadata.year
                         && data.albumartist.toString() === metadata.albumartist.toString();
+              } else {
+                return data.title === metadata.album && data.year === metadata.year;
               }
-              return data.title === metadata.album && data.year === metadata.year;
           });
           let trackId = uuid.v1();
           if(existingAlbum) {
@@ -158,41 +169,37 @@ function createMusicData(files) {
   return deferred.promise;
 }
 
-function processMetaData(files, msgType) {
-  createMusicData(files).then(function(musicData){
-    musicData['tracks'] = musicData['tracks'].filter(function(t){return t._id != 'none' });
-    if (msgType == MSG_TYPE.UPDATE) {
-      db.addUpdateAlbums(musicData['albums']).then(function(docs){},function(err){});
-      db.addUpdateTracks(musicData['tracks']).then(function() {notifyUI(msgType);},function(err) {notifyUI(msgType);});
-    } else {
-      db.insertAlbums(musicData['albums']).then(function(){},function(err){});
-      db.insertTracks(musicData['tracks']).then(function() {notifyUI(msgType);},function(err) {notifyUI(msgType);});
-    }
-  },function(err){notifyUI(msgType);});
+processMetaData = (files) => {
+  createMusicData(files).then((musicData) => {
+    musicData['tracks'] = musicData['tracks'].filter((t) => {return t._id != 'none' });
+      db.addUpdateAlbums(musicData['albums']).then((num) => {
+        db.addUpdateTracks(musicData['tracks']).then((num) => {
+          cacheing = false;
+          notifyUI(num);
+        },(err) => {notifyUI(MSG_TYPE.INIT);});
+      },(err) => {notifyUI(MSG_TYPE.INIT);});
+  },(err) => {notifyUI(MSG_TYPE.INIT);});
 };
 
-function setMusicDir(newDir) {
-  db.getConfig().update({ musicDir: musicDir}, { musicDir: newDir}, { upsert: true }, function (err, numReplaced) {
+setMusicDir = (newDir) => {
+  db.getConfig().update({_id:'mainConfig'}, { musicHome: newDir}, {}, (err, numReplaced) => {
     if(err) log(err);
   });
   musicDir = newDir;
 };
 
-db.getConfig().find({},function (err, docs) {
-  if (!err && docs && docs.length > 0) {
-    musicDir = docs[0].musicDir;
-  } else {
-    setMusicDir(musicDir);
-  }
-});
-
-exports.initMusicCache = () => {
-  glob(musicDir+"**/*.mp3", null, function (err, files) {
-    if (err || files.length < 1) {
-      notifyUI(MSG_TYPE.INIT);
-    } else {
-      processMetaData(files, MSG_TYPE.INIT)
+const initMusicCache = () => {
+  db.getConfig().findOne({_id:'mainConfig'},(err, doc) => {
+    if (!err && doc > 0) {
+      musicDir = docs.musicDir;
     }
+    glob(musicDir+"**/*.mp3", null, (err, files) => {
+      if (err || files.length < 1) {
+        notifyUI(MSG_TYPE.INIT);
+      } else {
+        processMetaData(files);
+      }
+    });
   });
 };
 
@@ -201,18 +208,7 @@ exports.updateMusicHome = (newPath) => {
     setMusicDir(newPath + path.sep);
     diskWatcher.close();
     diskWatcher = undefined;
-    glob(musicDir+"**/*.mp3", null, function (err, files) {
-      if (!err && files.length > 0) {
-        db.getTracksByFileNames(files).then(function(docs) {
-          let existing = docs.map(function(val){return val.fileName});
-          let toAdd = files.filter(function(val){return existing.indexOf(val) == -1;});
-          if (toAdd.length != 0) {
-            processMetaData(toAdd, MSG_TYPE.UPDATE)
-          }
-        },function(err) {
-        });
-      }
-    });
+    initMusicCache();
   }
 };
 
@@ -227,3 +223,5 @@ exports.getDB = () => {
 exports.setWinRef = (win) => {
   winRef = win;
 };
+
+exports.initMusicCache = initMusicCache;

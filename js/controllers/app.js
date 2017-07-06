@@ -3,13 +3,18 @@ angular.module('skynetclient.app',[])
 .controller('AppCtrl', function ($scope, $rootScope, $route, $location, $mdColors) {
   $scope.initDone = -1;
   $scope.themes = ['default', 'defaultLight', 'choclate', 'choclateLight', 'slate', 'slateLight'];
-  $scope.theme = localStorage["theme"] || "default";
+  getTheme().then(function(theme){
+    $scope.theme = theme;
+  },function(err) {
+    console.log(err);
+  });
   $scope.btnFill = 'white';
   $scope.background1 = '700';
   $scope.background2 = '500';
   $rootScope.applyTheme = function(item) {
     if (angular.isDefined(item)) {
-      localStorage["theme"] = $scope.theme = item;
+      updateTheme($scope.theme, item);
+      $scope.theme = item;
     }
     if ($scope.theme.indexOf('Light') > -1) {
       $scope.background1 = 'A100';
@@ -70,4 +75,12 @@ angular.module('skynetclient.app',[])
     $scope.selectedPage = $location.path().split('/')[1];
     $scope.loading = false;
   });
+
+  $scope.postMsg = function(msg) {
+    $scope.initDone = 0;
+    if (msg != 0) {
+      $rootScope.$emit('musicExist');
+    }
+  };
+
 });

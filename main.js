@@ -5,7 +5,6 @@ const {app} = electron;
 const {BrowserWindow} = electron;
 
 const fileservice = require('./js/node_services/fileService');
-const db = require('./js/node_services/dbService');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -18,7 +17,7 @@ function createWindow() {
   win.center();
   win.loadURL(`file://${__dirname}/index.html`);
   win.webContents.on('did-finish-load', () => {
-    //win.webContents.openDevTools();
+    win.webContents.openDevTools();
     fileservice.setWinRef(win);
     fileservice.initMusicCache();
   });

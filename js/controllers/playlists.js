@@ -7,8 +7,10 @@ angular.module('skynetclient.playlistsModule',[])
     $scope.loading = true;
     $scope.playLists.forEach(function(element, index, array) {
       getPlaylistArt(element).then(function(data) {
-        $scope.arts[element] = data;
-      },function(err){
+        $scope.$evalAsync(function() {
+          $scope.arts[element] = data;
+        });
+      },function(err) {
         console.log(err);
       });;
     });
@@ -57,15 +59,19 @@ angular.module('skynetclient.playlistsModule',[])
       let index = $scope.trackData.findIndex(function(data){return data._id == trackId});
       removeTracksFromPlaylist([tracks], $route.current.params.playlistId);
       $scope.trackData.splice(index, 1);
+      if ($scope.trackData.length < 1) {
+        $location.path('playlists');
+      }
     } else {
-      removeTracksFromPlaylist(tracks, $route.current.params.playlistId);
-      $scope.trackData = [];
-    }
-    if ($scope.trackData.length < 1) {
+      deletePlayList($route.current.params.playlistId);
       $location.path('playlists');
     }
   };
 
+  if ($route.current.params.playlistId === 'favorites') {
+    $scope.coverData.actions[2].visible = false;
+    $scope.coverData.actions[3].visible = false;
+  }
   $scope.coverData.actions[2].label = 'Delete Playlist';
   $scope.coverData.actions[2].icon = 'delete';
   $scope.coverData.actions[2].color = 'md-warn';

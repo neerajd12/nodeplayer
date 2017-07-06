@@ -42,13 +42,19 @@ angular.module('skynetclient.detailsViewModule',[])
       $scope.trackActions[0].visible = false;
     }
     if (musicQueue.getTracks().indexOf(track.fileName) > -1) {
-      $scope.trackActions[1].label = 'Clear Queue';
+      $scope.trackActions[1].label = 'Remove Queue';
       $scope.trackActions[1].icon = 'remove_from_queue';
       $scope.trackActions[1].color = 'md-warn';
     } else {
       $scope.trackActions[1].label = 'Add to Queue';
       $scope.trackActions[1].icon = 'queue_music';
       $scope.trackActions[1].color = 'md-accent md-hue-3';
+    }
+    console.log($scope.trackPlaying);
+    if ($scope.trackPlaying === track.fileName) {
+      $scope.trackActions[0].visible = false;
+    } else {
+      $scope.trackActions[0].visible = true;
     }
     $scope.clickedTrackId = track._id;
   };

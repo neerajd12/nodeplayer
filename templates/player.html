@@ -7,7 +7,7 @@
     </md-button>
     <div flex>
       <md-slider ng-disabled="track.duration == 0" ng-model="track.currentTime" min="0" step="1" max="{{track.duration}}" ng-change="updateTrackTime()" class="md-accent md-hue-3" style="cursor:pointer;height:30px;" aria-label="track time"></md-slider>
-      <small>{{track.title || 'press the play button to listen'}}</small>
+      <small>{{track.title || 'Add music to queue to listen'}}</small>
       <small style="float:right;" ng-if="track.duration > 1">{{(track.duration/60) | number:2}}</small>
     </div>
     <md-button class="md-icon-button" ng-repeat="btn in mediaButtons track by $index" aria-label="{{btn.label}}" ng-click="btn.action()" ng-disabled="track.duration == 0">

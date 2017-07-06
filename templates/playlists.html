@@ -45,11 +45,11 @@
         </div>
       </div>
       <md-grid-tile-footer class="albumLayover" layout-align="center center" ng-show="mouseOn === playListId">
-        <md-button class="md-fab md-accent md-hue-3" ng-click="addPlaylistToQ(playlistId, $event)" aria-label="Play" ng-if="arts[playListId].length > 0 ">
+        <md-button class="md-fab md-accent md-hue-3" ng-click="addPlaylistToQ($event)" aria-label="Play">
           <md-tooltip>Add to Queue</md-tooltip>
           <ng-md-icon icon="add_to_queue" style="fill:white"></ng-md-icon>
         </md-button>
-        <md-button class="md-fab md-accent md-hue-3" ng-click="playPlaylist(playlistId, $event)" aria-label="Play" ng-if="arts[playListId].length > 0 ">
+        <md-button class="md-fab md-accent md-hue-3" ng-click="playPlaylist($event)" aria-label="Play" >
           <md-tooltip>Play</md-tooltip>
           <ng-md-icon icon="playlist_play" style="fill:white"></ng-md-icon>
         </md-button>

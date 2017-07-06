@@ -38,20 +38,24 @@ angular.module('skynetclient.musicServiceModule', [])
   this.updateCurrentTrackNum  = function(index) {
     self.lastTrack = self.getCurrentTrackNum();
     localStorage["currentTrack"] = index;
+    $rootScope.$emit('queueOrderChanged');
   };
   this.reCalibrateQ = function(newTracks, front) {
     self.updateTracks(newTracks);
     if (front) {
       self.updateCurrentTrackNum(0);
-      $rootScope.$emit('trackAddedToTop');
+      $rootScope.$emit('queueOrderChanged');
     }
     Notification.primary("Added to queue !!!");
   }
   this.addTrackToTop = function(newTrack){
     let existing = self.getTracks();
-    if (existing.indexOf(newTrack) == -1) {
+    let index = existing.indexOf(newTrack)
+    if ( index == -1) {
       existing.unshift(newTrack);
       self.reCalibrateQ(existing, true);
+    } else {
+      self.updateCurrentTrackNum(index);
     }
   };
   this.prependQueue = function(newTracks) {
@@ -66,14 +70,14 @@ angular.module('skynetclient.musicServiceModule', [])
       existing.push(newTrack);
       self.reCalibrateQ(existing, false);
     }
-    if (sendNotification) $rootScope.$emit('musicExist');
+    if (sendNotification) $rootScope.$emit('tracksAdded');
   };
   this.appendQueue = function(newTracks) {
     let existing = self.getTracks();
     let sendNotification = existing.length < 1;
     existing = existing.concat(newTracks.filter(function(val){return existing.indexOf(val) == -1}))
     self.reCalibrateQ(existing, false);
-    if (sendNotification) $rootScope.$emit('musicExist');
+    if (sendNotification) $rootScope.$emit('tracksAdded');
   };
   this.removeTrack = function(trackToRemove, showNotification) {
     let existing = self.getTracks();
