@@ -3,9 +3,9 @@ os = require('os'),
 path = require('path'),
 Q = require('q'),
 dataDir = os.homedir() + path.sep +'.nodeplayerdata' + path.sep,
-albums = new Datastore(),
-tracks = new Datastore();
-playlists = new Datastore({ filename: dataDir+'playlists', autoload: true });
+albums = new Datastore({ filename: dataDir+'albums', autoload: true }),
+tracks = new Datastore({ filename: dataDir+'tracks', autoload: true }),
+playlists = new Datastore({ filename: dataDir+'playlists', autoload: true }),
 config = new Datastore({ filename: dataDir+'config', autoload: true });
 
 albums.ensureIndex({ fieldName: 'title', unique: false }, (err) => {if(err) console.log(err);});
@@ -24,12 +24,14 @@ playlists.count({_id:'favorites'}, (err, count) => {
 
 /******************* Config ****************** */
 config.count({},(err, count) => {
-  config.insert({
-    _id:'mainConfig',
-    musicHome: os.homedir() + path.sep + "Music" + path.sep,
-    theme:'default',
-    queue:[]
-  }, (err, newDoc) => {});
+  if (count == 0) {
+    config.insert({
+      _id:'mainConfig',
+      musicHome: os.homedir() + path.sep + "Music" + path.sep,
+      theme:'default',
+      queue:[]
+    }, (err, newDoc) => {});
+  }
 });
 
 exports.getConfig = () => {
@@ -248,7 +250,8 @@ const insertAlbums = (newAlbums) => {
 exports.addUpdateAlbums = (albumsToAdd) => {
   let deferred = Q.defer();
   albumsToAdd.forEach((album, index, albumsToAdd) => {
-    albums.findOne({$and:[{title: album.title}, {year:album.year} , {artist: album.albumartist}]}
+      albums.findOne({$where: function () {
+          return this.title == album.title && this.year == album.year && this.artist.toString() == album.artist.toString();}}
       ,(err, docs) => {
       if (!err && docs == null) insertAlbums(album);
       if (index === albumsToAdd.length-1) deferred.resolve(albumsToAdd.length);

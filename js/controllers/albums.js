@@ -3,24 +3,52 @@ angular.module('skynetclient.albumsModule',[])
 .controller('albumsCtrl',function($rootScope, $scope, $location, musicQueue, Notification, collection) {
   $scope.tiles=[];
 
-  $rootScope.$on('musicExist', function() {
-    $scope.reCheckMusic();
+  $scope.$on('PROCESSING', function(event) {
+    $scope.cacheingData = true;
   });
+
+  angular.forEach(['INIT', 'UPDATE', 'ADD'], function(eventType) {
+    $scope.$on(eventType, function(event) {
+      $scope.reCheckMusic();
+    });
+  });
+
+  angular.forEach(['REMOVE', 'EMPTY'], function(eventType) {
+    $scope.$on(eventType, function(event) {
+      getAlbums().then(function(data) {
+        $scope.$evalAsync(function() {
+          $scope.tiles = data;
+        });
+      },function(err) {});
+      getTracks().then(function(data) {
+        let notRemoved = data.map(function(a){return a.fileName})
+        musicQueue.removeTracks(musicQueue.getTracks().filter(function(q){return notRemoved.indexOf(q) == -1}));
+      },function(err) {});
+    });
+  });
+
   function setTiles(data) {
     $scope.$evalAsync(function() {
+      $scope.cacheingData = false;
       if (data.length > 0) {
-        $scope.tiles = data;
+        if ($scope.tiles.length == 0) {
+          $scope.tiles = data;
+        } else {
+          let currentTilesIds = $scope.tiles.map(function(a){return a._id});
+          data.forEach(function(al, index, data){
+            if (currentTilesIds.indexOf(al._id) == -1) {
+              $scope.tiles.push(al);
+            }
+          });
+        }
         $scope.loading = false;
       }
     });
   };
   $scope.reCheckMusic = function() {
-    $scope.loading = true;
     getAlbums().then(function(data) {
       setTiles(data);
-    },function(err) {
-      $scope.loading = false;
-    });
+    },function(err) {});
   };
   $scope.showAlbumDetails = function(album, event) {
     album.showButton=false;

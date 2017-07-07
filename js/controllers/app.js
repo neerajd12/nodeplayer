@@ -1,6 +1,6 @@
 'use strict';
 angular.module('skynetclient.app',[])
-.controller('AppCtrl', function ($scope, $rootScope, $route, $location, $mdColors) {
+.controller('AppCtrl', function ($scope, $rootScope, $route, $location, $mdColors, Notification) {
   $scope.initDone = -1;
   $scope.themes = ['default', 'defaultLight', 'choclate', 'choclateLight', 'slate', 'slateLight'];
   getTheme().then(function(theme){
@@ -78,9 +78,6 @@ angular.module('skynetclient.app',[])
 
   $scope.postMsg = function(msg) {
     $scope.initDone = 0;
-    if (msg != 0) {
-      $rootScope.$emit('musicExist');
-    }
+    $scope.$broadcast(msg);
   };
-
 });

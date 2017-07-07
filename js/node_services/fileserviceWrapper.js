@@ -59,6 +59,10 @@ getAlbumByTrackName = (trackName) => {
   return fServ.getDB().getAlbumByTrackName(trackName);
 };
 /******************* Track ****************** */
+getTracks = (trackId) => {
+  return fServ.getDB().getTracks();
+};
+
 getTrackById = (trackId) => {
   return fServ.getDB().getTrackById(trackId);
 };

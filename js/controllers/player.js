@@ -170,7 +170,6 @@ angular.module('skynetclient.playerModule', [])
       resetTrack();
       return;
     }
-    console.log(track);
     getTrackByFileName(track).then(function(trk) {
       if (trk) {
         $scope.track = trk;
@@ -210,11 +209,15 @@ angular.module('skynetclient.playerModule', [])
   $rootScope.$on('queueEmpty', function() {
     clearAudio();
   });
-  $rootScope.$on('musicExist', function() {
-    if ($scope.track.duration == 0) setTrackAndPlay(musicQueue.getCurrent(), false);
-  });
   $rootScope.$on('tracksAdded', function() {
     if ($scope.track.duration == 0) setTrackAndPlay(musicQueue.getCurrent(), false);
-});
+  });
+
+  angular.forEach(['INIT', 'UPDATE', 'ADD'], function(eventType) {
+    $scope.$on(eventType, function(event) {
+      if ($scope.track.duration == 0) setTrackAndPlay(musicQueue.getCurrent(), false);
+    });
+  });
+
   resetTrack();
 });

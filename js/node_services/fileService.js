@@ -15,8 +15,16 @@ mkdirp(dataDir, (err) => {
     if (err) error(err);
 });
 const db = require('./dbService'),
-MSG_TYPE = {UPDATE: 1, INIT: 0};
-let musicDir = os.homedir() + path.sep + "Music" + path.sep,
+MSG_TYPE = {
+  INIT: 'INIT',
+  PROCESSING:'PROCESSING',
+  UPDATE: 'UPDATE',
+  ADD: 'ADD',
+  REMOVE: 'REMOVE',
+  EMPTY: 'EMPTY',
+  ERROR: 'ERROR'
+};
+let musicHome = os.homedir() + path.sep + "Music" + path.sep,
 diskWatcher = undefined,
 winRef = undefined,
 cacheing = false;
@@ -28,11 +36,12 @@ notifyUI = (msgType) => {
 
 removeTrackFromCache = (file) => {
   db.removeTrack(file);
+  notifyUI(MSG_TYPE.REMOVE);
 };
 
 InitWatcher = () => {
   if (!diskWatcher) {
-    diskWatcher = chokidar.watch(musicDir, {
+    diskWatcher = chokidar.watch(musicHome, {
         ignored: /[\/\\]\./,
         persistent: true,
         followSymlinks:false,
@@ -45,17 +54,15 @@ InitWatcher = () => {
       let tt = path.split('.');
       if (supportedFiles.indexOf(tt[tt.length-1]) > -1) {
         if (!cacheing) {
-          console.log(2);
           cacheing = true;
-          setTimeout(initMusicCache, 1000);
+          setTimeout(updtaeMusicCache, 1000);
         }
       };
     })
     .on('addDir', (path) => {
       if (!cacheing) {
-        console.log(1);
         cacheing = true;
-        setTimeout(initMusicCache, 1000);
+        setTimeout(updtaeMusicCache, 1000);
       }
       log('Directory', path, 'has been added');
     })
@@ -169,51 +176,77 @@ createMusicData = (files) => {
   return deferred.promise;
 }
 
-processMetaData = (files) => {
+processMetaData = (files, callFrom) => {
   createMusicData(files).then((musicData) => {
     musicData['tracks'] = musicData['tracks'].filter((t) => {return t._id != 'none' });
       db.addUpdateAlbums(musicData['albums']).then((num) => {
         db.addUpdateTracks(musicData['tracks']).then((num) => {
           cacheing = false;
-          notifyUI(num);
-        },(err) => {notifyUI(MSG_TYPE.INIT);});
-      },(err) => {notifyUI(MSG_TYPE.INIT);});
-  },(err) => {notifyUI(MSG_TYPE.INIT);});
+          if (num > 0) notifyUI(MSG_TYPE.UPDATE);
+          else if (callFrom == 'init')  notifyUI(MSG_TYPE.EMPTY);
+        },(err) => {notifyUI(MSG_TYPE.ERROR);});
+      },(err) => {notifyUI(MSG_TYPE.ERROR);});
+  },(err) => {notifyUI(MSG_TYPE.ERROR);});
 };
 
 setMusicDir = (newDir) => {
   db.getConfig().update({_id:'mainConfig'}, { musicHome: newDir}, {}, (err, numReplaced) => {
     if(err) log(err);
   });
-  musicDir = newDir;
+  musicHome = newDir;
 };
 
-const initMusicCache = () => {
+const reSyncCache = () => {
+  db.getTracks().then((tracks) => {
+    let deleted = false;
+    tracks.forEach((track, index, tracks)=> {
+      fs.exists(track.fileName, (exists) => {
+        if(!exists) {
+          deleted = true;
+          removeTrackFromCache(track.fileName);
+        }
+        if (deleted && index === tracks.length-1) notifyUI(MSG_TYPE.REMOVE);
+      });
+    });
+  },(err) => {});
+  glob(musicHome+"**/*.mp3", null, (err, files) => {
+    if (!err && files.length > 1) processMetaData(files, 'init');
+  });
+}
+
+exports.initMusicCache = () => {
+  db.getTrackCount().then((count) => {
+    if (count > 0) notifyUI(MSG_TYPE.INIT);
+    else notifyUI(MSG_TYPE.PROCESSING);
+    db.getConfig().findOne({_id:'mainConfig'},(err, doc) => {
+      if (!err && doc) musicHome = doc.musicHome;
+      reSyncCache();
+    });
+  },(err) => {
+    notifyUI(MSG_TYPE.ERROR);
+  });
+};
+
+const updtaeMusicCache = () => {
   db.getConfig().findOne({_id:'mainConfig'},(err, doc) => {
-    if (!err && doc > 0) {
-      musicDir = docs.musicDir;
-    }
-    glob(musicDir+"**/*.mp3", null, (err, files) => {
-      if (err || files.length < 1) {
-        notifyUI(MSG_TYPE.INIT);
-      } else {
-        processMetaData(files);
-      }
+    if (!err && doc) musicHome = doc.musicHome;
+    glob(musicHome+"**/*.mp3", null, (err, files) => {
+      if (!err && files.length > 0) processMetaData(files, 'update');
     });
   });
 };
 
 exports.updateMusicHome = (newPath) => {
-  if ((newPath + path.sep) !== musicDir) {
+  if ((newPath + path.sep) !== musicHome) {
     setMusicDir(newPath + path.sep);
     diskWatcher.close();
     diskWatcher = undefined;
-    initMusicCache();
+    updtaeMusicCache();
   }
 };
 
 exports.getMusicDir = () => {
-  return musicDir;
+  return musicHome;
 };
 
 exports.getDB = () => {
@@ -223,5 +256,3 @@ exports.getDB = () => {
 exports.setWinRef = (win) => {
   winRef = win;
 };
-
-exports.initMusicCache = initMusicCache;

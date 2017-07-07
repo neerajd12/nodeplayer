@@ -1,9 +1,11 @@
-<div ng-show="!loading && tiles.length < 1" flex layout-padding layout-fill layout="column" layout-align="center center" md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}">
-  <h1 class="md-display-1">No albums found</h1>
-  <md-button class="md-fab md-accent md-hue-3" aria-label="refresh" ng-click="reCheckMusic()">
+<div ng-if="!loading && tiles.length < 1" flex layout-padding layout-fill layout="column" layout-align="center center" md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}">
+  <h1 ng-show="!cacheingData" class="md-display-1">No albums found</h1>
+  <md-button ng-show="!cacheingData" class="md-fab md-accent md-hue-3" aria-label="refresh" ng-click="reCheckMusic()">
     <md-tooltip>Refresh</md-tooltip>
     <ng-md-icon icon="refresh" style="fill:white"></ng-md-icon>
   </md-button>
+  <h1 ng-show="cacheingData" class="md-display-1">Reading Music Files</h1>
+  <md-progress-circular ng-show="cacheingData" class="md-accent md-hue-3" md-mode="indeterminate"></md-progress-circular>
 </div>
 <div ng-show="!loading && tiles.length > 0" layout-padding md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}" >
   <md-grid-list md-row-height="1:1" md-cols-xs="2" md-cols-sm="3" md-cols-md="3" md-cols-gt-md="4">
