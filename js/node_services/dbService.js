@@ -2,14 +2,17 @@ const Datastore = require('nedb'),
 os = require('os'),
 path = require('path'),
 Q = require('q'),
+mkdirp = require('mkdirp');
 dataDir = os.homedir() + path.sep +'.nodeplayerdata' + path.sep,
+mkdirp(dataDir, (err) => {if (err) error(err)}),
 albums = new Datastore({ filename: dataDir+'albums', autoload: true }),
 tracks = new Datastore({ filename: dataDir+'tracks', autoload: true }),
 playlists = new Datastore({ filename: dataDir+'playlists', autoload: true }),
 config = new Datastore({ filename: dataDir+'config', autoload: true });
 
-albums.ensureIndex({ fieldName: 'title', unique: false }, (err) => {if(err) console.log(err);});
+let musicHome = os.homedir() + path.sep + "Music" + path.sep;
 
+albums.ensureIndex({ fieldName: 'title', unique: false }, (err) => {if(err) console.log(err);});
 tracks.ensureIndex({ fieldName: 'fileName', unique: true }, (err) => {if(err) console.log(err);});
 tracks.ensureIndex({ fieldName: 'title', unique: false }, (err) => {if(err) console.log(err);});
 tracks.ensureIndex({ fieldName: 'artist', unique: false }, (err) => {if(err) console.log(err);});
@@ -23,12 +26,14 @@ playlists.count({_id:'favorites'}, (err, count) => {
 });
 
 /******************* Config ****************** */
-config.count({},(err, count) => {
-  if (count == 0) {
+config.findOne({_id:'mainConfig'},(err, doc) => {
+  if (doc) {
+    musicHome = doc.musicHome
+  } else {
     config.insert({
       _id:'mainConfig',
-      musicHome: os.homedir() + path.sep + "Music" + path.sep,
-      theme:'default',
+      'musicHome': musicHome,
+      theme:'defaultLight',
       queue:[]
     }, (err, newDoc) => {});
   }
@@ -38,17 +43,36 @@ exports.getConfig = () => {
   return config;
 };
 
+exports.getDataDir = () => {
+  return dataDir;
+};
+
 exports.getMusicHome = () => {
   let deferred = Q.defer();
-  config.findOne({_id:'mainConfig'},{}, (err, doc) => {
+  config.findOne({_id:'mainConfig'}, (err, doc) => {
     if (err) deferred.reject(err);
-    else deferred.resolve(docs.musicHome);
+    else deferred.resolve(doc.musicHome);
   });
   return deferred.promise;
 };
+
+exports.getLocalMusicHome = () => {
+  return musicHome;
+};
+
+exports.updateMusicHome = (newMusicHome) => {
+  let deferred = Q.defer();
+  musicHome = newMusicHome;
+  config.update({_id:'mainConfig'}, { $set: {'musicHome': newMusicHome} }, (err, numReplaced) => {
+    if(err) deferred.reject(err);
+    else deferred.resolve(numReplaced);
+  });
+  return deferred.promise;
+};
+
 exports.getTheme = () => {
   let deferred = Q.defer();
-  config.findOne({_id:'mainConfig'},{}, (err, doc) => {
+  config.findOne({_id:'mainConfig'}, (err, doc) => {
     if (err) { console.log(err);deferred.reject(err);}
     else deferred.resolve(doc.theme);
   });
@@ -56,7 +80,7 @@ exports.getTheme = () => {
 };
 exports.updateTheme = (oldTheme, newTheme) => {
   let deferred = Q.defer();
-  config.update({theme:oldTheme},{theme:newTheme}, (err, num) => {
+  config.update({_id:'mainConfig'}, { $set: {theme:newTheme} }, (err, num) => {
     if (err) { console.log(err);deferred.reject(err);}
     else deferred.resolve(num);
   });
@@ -64,7 +88,7 @@ exports.updateTheme = (oldTheme, newTheme) => {
 };
 exports.getQueue = () => {
   let deferred = Q.defer();
-  config.findOne({_id:'mainConfig'},{}, (err, doc) => {
+  config.findOne({_id:'mainConfig'}, (err, doc) => {
     if (err) deferred.reject(err);
     else deferred.resolve(doc.queue);
   });
@@ -72,9 +96,9 @@ exports.getQueue = () => {
 };
 exports.getQueueTracks = () => {
   let deferred = Q.defer();
-  config.findOne({_id:'mainConfig'},{}, (err, docs) => {
+  config.findOne({_id:'mainConfig'}, (err, docs) => {
     if (err) deferred.reject(err);
-    else deferred.resolve(getTracksByFileNames(doc.queue));
+    else deferred.resolve(exports.getTracksByFileNames(doc.queue));
   });
   return deferred.promise;
 };
@@ -98,7 +122,7 @@ exports.removeFromQueue = (tracks) => {
 
 exports.clearQueue = () => {
   let deferred = Q.defer();
-  config.update({_id:'mainConfig'}, {queue:[]}, {}, (err, num) => {
+  config.update({_id:'mainConfig'}, { $set: { queue:[] } }, (err, num) => {
     if (err) { console.log(err);deferred.reject(err);}
     else deferred.resolve(num);
   });
@@ -106,18 +130,18 @@ exports.clearQueue = () => {
 };
 /******************* Favs ****************** */
 exports.getFavTracks = () => {
-  return getPlaylistTrackNames('favorites');
+  return exports.getPlaylistTrackNames('favorites');
 };
-const updateTracksFavIcon = (trackIds, icon) => {
+exports.updateTracksFavIcon = (trackIds, icon) => {
   if (icon === 'favorite') {
-    addTracksToPlayList(trackIds, 'favorites');
+    exports.addTracksToPlayList(trackIds, 'favorites');
   } else {
-    removeTracksFromPlaylist(trackIds, 'favorites')
+    exports.removeTracksFromPlaylist(trackIds, 'favorites')
   }
 };
 exports.updateAlbumFavIcon = (albumId, icon) => {
   getTracksNamesByAlbumId(albumId).then((tracks) => {
-    updateTracksFavIcon(tracks, icon);
+    exports.updateTracksFavIcon(tracks, icon);
   });
 };
 
@@ -130,15 +154,15 @@ exports.getPlaylists = () => {
   });
   return deferred.promise;
 };
-const getPlaylistTracks = (playlistId) => {
+exports.getPlaylistTracks = (playlistId) => {
   let deferred = Q.defer();
   playlists.findOne({_id: playlistId},(err, doc) => {
     if (err) deferred.reject(err);
-    else deferred.resolve(getTracksByFileNames(doc.tracks));
+    else deferred.resolve(exports.getTracksByFileNames(doc.tracks));
   });
   return deferred.promise;
 };
-const getPlaylistTrackNames = (playlistId) => {
+exports.getPlaylistTrackNames = (playlistId) => {
   let deferred = Q.defer();
   playlists.findOne({_id: playlistId},(err, doc) => {
     if (err) deferred.reject(err);
@@ -166,20 +190,20 @@ exports.getPlaylistArt = (playlistId) => {
   });
   return deferred.promise;
 };
-const addTracksToPlayList = (trackIds, playlistId) => {
+exports.addTracksToPlayList = (trackIds, playlistId) => {
   playlists.update({_id:playlistId}, {$addToSet:{tracks:{$each:trackIds}}}, {multi:true, upsert:true}, (err,num) => {});
 };
-const removeTracksFromPlaylist = (trackIds, playlistId) => {
+exports.removeTracksFromPlaylist = (trackIds, playlistId) => {
   playlists.update({_id:playlistId}, {$pull:{tracks:{$in:trackIds}}}, {}, (err,num) => {});
 };
 exports.addAlbumToPlayList = (albumId, playlistId) => {
   getTracksNamesByAlbumId(albumId).then((fileNames) => {
-    addTracksToPlayList(fileNames, playlistId)
+    exports.addTracksToPlayList(fileNames, playlistId)
   },(err) => {});
 };
 exports.removeAlbumFromPlaylist = (albumId, playlistId) => {
   getTracksNamesByAlbumId(albumId).then((fileNames) => {
-    removeTracksFromPlaylist(fileNames, playlistId)
+    exports.removeTracksFromPlaylist(fileNames, playlistId)
   },(err) => {});
 };
 exports.deletePlayList = (playlistId) => {
@@ -187,6 +211,17 @@ exports.deletePlayList = (playlistId) => {
 };
 
 /******************* Albums ****************** */
+
+
+exports.albumExists = (album) => {
+  let deferred = Q.defer();
+  albums.findOne({$where: function () {
+      return this.title == album.title && this.year == album.year && this.artist.toString() == album.artist.toString();}
+    },(err, doc) => {
+    deferred.resolve(doc);
+  });
+  return deferred.promise;
+};
 
 exports.getAlbumCount = () => {
   let deferred = Q.defer();
@@ -204,7 +239,7 @@ exports.getAlbums = () => {
   });
   return deferred.promise;
 };
-const getAlbumById = (albumId) => {
+exports.getAlbumById = (albumId) => {
   let deferred = Q.defer();
   albums.findOne({_id: albumId},(err, docs) => {
     if (err) deferred.reject(err);
@@ -223,8 +258,8 @@ exports.getAlbumByName = (name) => {
 //.then((doc) => {},(err) => {});
 exports.getAlbumByTrackId = (trackId) => {
   let deferred = Q.defer();
-  getTrackById(trackId).then((doc) => {
-    deferred.resolve(getAlbumById(doc._id));
+  exports.getTrackById(trackId).then((doc) => {
+    deferred.resolve(exports.getAlbumById(doc._id));
   },(err) => {
     deferred.reject(err);
   });
@@ -232,14 +267,14 @@ exports.getAlbumByTrackId = (trackId) => {
 };
 exports.getAlbumByTrackName = (trackName) => {
   let deferred = Q.defer();
-  getTrackByFileName(trackName).then((doc) => {
-    deferred.resolve(getAlbumById(doc._id));
+  exports.getTrackByFileName(trackName).then((doc) => {
+    deferred.resolve(exports.getAlbumById(doc._id));
   },(err) => {
     deferred.reject(err);
   });
   return deferred.promise;
 };
-const insertAlbums = (newAlbums) => {
+exports.insertAlbums = (newAlbums) => {
   let deferred = Q.defer();
   albums.insert(newAlbums, (err, newDocs) => {
     if(err) console.log(err);
@@ -250,10 +285,16 @@ const insertAlbums = (newAlbums) => {
 exports.addUpdateAlbums = (albumsToAdd) => {
   let deferred = Q.defer();
   albumsToAdd.forEach((album, index, albumsToAdd) => {
-      albums.findOne({$where: function () {
-          return this.title == album.title && this.year == album.year && this.artist.toString() == album.artist.toString();}}
-      ,(err, docs) => {
-      if (!err && docs == null) insertAlbums(album);
+      albums.findOne({$where: function () {return this.title == album.title && this.year == album.year}},(err, doc) => {
+        if (!err) {
+          if (doc == null) {
+            exports.insertAlbums(album);
+          } else {
+            albums.update({ _id: doc.id }, album, (err, numReplaced) => {
+              if(err) console.log(err);
+            });
+          }
+        }
       if (index === albumsToAdd.length-1) deferred.resolve(albumsToAdd.length);
     });
   });
@@ -264,7 +305,7 @@ exports.updateAlbum = (album) => {
     if(err) console.log(err);
   });
 };
-const removeAlbum = (id) => {
+exports.removeAlbum = (id) => {
   albums.remove({_id:id}, {}, (err, numRemoved) => {
   });
 };
@@ -286,7 +327,7 @@ exports.getTracks = () => {
   });
   return deferred.promise;
 };
-const getTrackById = (trackId) => {
+exports.getTrackById = (trackId) => {
   let deferred = Q.defer();
   tracks.findOne({_id: trackId},(err, docs) => {
     if (err) deferred.reject(err);
@@ -294,7 +335,7 @@ const getTrackById = (trackId) => {
   });
   return deferred.promise;
 };
-const getTrackByFileName = (fileName) => {
+exports.getTrackByFileName = (fileName) => {
   let deferred = Q.defer();
   tracks.findOne({'fileName': fileName},(err, docs) => {
     if (err) deferred.reject(err);
@@ -302,7 +343,7 @@ const getTrackByFileName = (fileName) => {
   });
   return deferred.promise;
 };
-const getTracksByFileNames = (fileNames) => {
+exports.getTracksByFileNames = (fileNames) => {
   let deferred = Q.defer();
   tracks.find({ fileName: { $in: fileNames }},(err, docs) => {
     if (err) deferred.reject(err);
@@ -342,7 +383,7 @@ exports.getTrackByAlbumName = (albumName) => {
   });
   return deferred.promise;
 };
-const insertTracks = (newtracks) => {
+exports.insertTracks = (newtracks) => {
   let deferred = Q.defer();
   tracks.insert(newtracks, (err, newDocs) => {
     if(err) console.log(err);
@@ -354,14 +395,14 @@ exports.addUpdateTracks = (tracksToAdd) => {
   let deferred = Q.defer();
   tracksToAdd.forEach((track, index, tracksToAdd) => {
     tracks.findOne({title: track.title},(err, docs) => {
-      if (!err && docs == null) insertTracks(track);
+      if (!err && docs == null) exports.insertTracks(track);
       if (index === tracksToAdd.length-1) deferred.resolve(tracksToAdd.length);
     });
   });
   return deferred.promise;
 };
 exports.addUpdateTrack = (track) => {
-  tracks.update({ title: track.title }, track, (err, numReplaced) => {
+  tracks.update({ fileName: track.fileName }, track, (err, numReplaced) => {
     if(err) console.log(err);
   });
 };
@@ -371,7 +412,7 @@ exports.removeTrack = (fileName) => {
       tracks.remove({'fileName' : fileName}, { multi: true }, (err, numRemoved) => {
         tracks.find({'albumId': doc.albumId}, {fileName: 1, _id: 0 }, (err, docs) => {
           if(!err && docs.length == 0) {
-            removeAlbum(doc.albumId);
+            exports.removeAlbum(doc.albumId);
           }
         });
       });
@@ -400,21 +441,11 @@ exports.searchTracks = (searchText) => {
 
 /******************* Remove ****************** */
 exports.cleanDB = (name) => {
+  let deferred = Q.defer();
   tracks.remove({}, { multi: true }, (err, numRemoved) => {
+    albums.remove({}, { multi: true }, (err, numRemoved) => {
+      deferred.resolve(numRemoved);
+    });
   });
-  albums.remove({}, { multi: true }, (err, numRemoved) => {
-  });
+  return deferred.promise;
 };
-
-exports.removeAlbum = removeAlbum;
-exports.getTrackById = getTrackById;
-exports.getAlbumById = getAlbumById;
-exports.getTrackByFileName = getTrackByFileName;
-exports.insertAlbums = insertAlbums;
-exports.getTracksByFileNames = getTracksByFileNames;
-exports.insertTracks = insertTracks;
-exports.updateTracksFavIcon = updateTracksFavIcon;
-exports.getPlaylistTracks = getPlaylistTracks;
-exports.addTracksToPlayList = addTracksToPlayList;
-exports.removeTracksFromPlaylist = removeTracksFromPlaylist;
-exports.getPlaylistTrackNames = getPlaylistTrackNames;

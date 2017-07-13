@@ -18,7 +18,7 @@ function createWindow() {
   win.loadURL(`file://${__dirname}/index.html`);
   win.webContents.on('did-finish-load', () => {
     //win.webContents.openDevTools();
-    fileservice.setWinRef(win);
+    fileservice.setMainProcessRefs(win, electron.dialog);
     fileservice.initMusicCache();
   });
   // Emitted when the window is closed.

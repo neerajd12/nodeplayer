@@ -3,14 +3,12 @@ angular.module('skynetclient.app',[])
 .controller('AppCtrl', function ($scope, $rootScope, $route, $location, $mdColors, Notification) {
   $scope.initDone = -1;
   $scope.themes = ['default', 'defaultLight', 'choclate', 'choclateLight', 'slate', 'slateLight'];
-  getTheme().then(function(theme){
-    $scope.theme = theme;
-  },function(err) {
-    console.log(err);
-  });
   $scope.btnFill = 'white';
   $scope.background1 = '700';
   $scope.background2 = '500';
+  getTheme().then(function(theme){
+    $rootScope.applyTheme(theme || 'defaultLight');
+  },function(err) {console.log(err)});
   $rootScope.applyTheme = function(item) {
     if (angular.isDefined(item)) {
       updateTheme($scope.theme, item);
@@ -25,7 +23,6 @@ angular.module('skynetclient.app',[])
       $scope.background2 = '500';
       $scope.btnFill = 'white';
     }
-    let coloBackground1 = {'backgroundColor':  $scope.theme+'-primary-'+$scope.background1};
     $mdColors.applyThemeColors(angular.element( document.querySelector('#mainPlayer')), {'backgroundColor':  $scope.theme+'-primary-800'});
     $mdColors.applyThemeColors(angular.element( document.querySelector('#content')), {'backgroundColor':  $scope.theme+'-primary-'+$scope.background2});
     $mdColors.applyThemeColors(angular.element( document.querySelector('#sideNav')), {'backgroundColor':  $scope.theme+'-primary-'+$scope.background2});

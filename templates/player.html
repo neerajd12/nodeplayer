@@ -1,7 +1,7 @@
 <div layout="column" id="mainPlayer" ng-controller="playerCtrl">
   <div id="musicPlayerDiv" layout="row" layout-align="space-between center" layout-padding layout-fill hide-xs>
     <img ng-src="{{track.picture}}" src="img/album-placeholder.jpg" ng-click="viewMode.toggle()" style="height:60px;width:60px;cursor:pointer;padding:2px;" alt="track Photo" />
-    <md-button ng-click="playMode.toggle()" aria-label="{{playMode.label}}" class="md-icon-button">
+    <md-button ng-click="playMode.setView(playMode.value)" aria-label="{{playMode.value}}" class="md-icon-button">
       <md-tooltip md-direction="top">{{playMode.value}}</md-tooltip>
       <ng-md-icon icon="{{playMode.icon}}" options='{"duration": 375}' style="fill:{{playMode.fill}}" size="20"></ng-md-icon>
     </md-button>

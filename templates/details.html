@@ -36,17 +36,18 @@
         </div>
       </div>
     </md-card>
-    <div layout="column" layout-align="center space-around">
-      <p class="md-subhead" style="line-height: 0px;">{{coverData.title}}</p>
-      <div ng-repeat="item in coverData.info">
-        <div flex ng-if="!isArray(item.val)" layout="row" layout-align="start start">
-          <small flex="33">{{item.title}}&nbsp;:&nbsp;</small>
-          <small flex="66">{{item.val}}</small>
-        </div>
-        <div flex ng-if="isArray(item.val)" layout="row" layout-align="start start">
-          <small flex="33">{{item.title}}&nbsp;:&nbsp;</small>
-          <div flex="66" layout="column">
-            <small ng-repeat="v in item.val">{{v}}</small>
+    <div layout="column" layout-align="center center">
+      <div layout="row" layout-align="center center">
+        <p class="md-subhead" style="line-height: 0px;">{{coverData.title}}</p>
+      </div>
+      <div layout="column" layout-align="center start">
+        <div ng-repeat="item in coverData.info">
+          <div layout="row" layout-align="center space-between">
+            <small>{{item.title}}&nbsp;:&nbsp;</small>
+            <div layout="column">
+              <small ng-if="!isArray(item.val)">{{item.val}}</small>
+              <small ng-if="isArray(item.val)" ng-repeat="v in item.val">{{v}}</small>
+            </div>
           </div>
         </div>
       </div>
@@ -69,7 +70,7 @@
           <p style="color:inherit">{{track.duration}}</p>
          </div>
          <md-button aria-label="track fav button" class="md-icon-button md-secondary {{trackActions.color}}"  ng-click="toggleFav(track, track._id)">
-           <ng-md-icon icon="{{track.favIcon}}" style="fill:{{trackActions[3].fill}}"></ng-md-icon>
+           <ng-md-icon icon="{{track.favIcon || favorite_border}}" style="fill:{{trackActions[3].fill}}"></ng-md-icon>
          </md-button>
          <md-divider ng-if="!$last"></md-divider>
        </md-list-item>

@@ -7,16 +7,19 @@ angular.module('skynetclient.playerModule', [])
     icon : 'repeat',
     value :'Repeat',
     fill:'white',
-    toggle : function() {
-      if (this.value === 'Shuffle') {
+    setView : function(val) {
+      if (val === 'Shuffle') {
         this.value = 'Repeat';
         this.icon = 'repeat';
       } else {
         this.value = 'Shuffle';
         this.icon = 'shuffle';
       }
+      localStorage['playMode'] = val;
     }
   };
+  $scope.playMode.setView(localStorage['playMode'] || 'Shuffle');
+
   $scope.viewMode = {
     action: 'showDetails',
     icon: 'keyboard_arrow_up',
@@ -216,6 +219,15 @@ angular.module('skynetclient.playerModule', [])
   angular.forEach(['INIT', 'UPDATE', 'ADD'], function(eventType) {
     $scope.$on(eventType, function(event) {
       if ($scope.track.duration == 0) setTrackAndPlay(musicQueue.getCurrent(), false);
+    });
+  });
+
+  angular.forEach(['REMOVE', 'EMPTY'], function(eventType) {
+    $scope.$on(eventType, function(event) {
+      getTracks().then(function(data) {
+        let notRemoved = data.map(function(a){return a.fileName})
+        musicQueue.removeTracks(musicQueue.getTracks().filter(function(q){return notRemoved.indexOf(q) == -1}));
+      },function(err) {});
     });
   });
 

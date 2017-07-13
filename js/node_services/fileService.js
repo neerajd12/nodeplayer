@@ -1,3 +1,8 @@
+let winRef = undefined,
+dialogRef = undefined,
+diskWatcher = undefined,
+cacheing = false;
+
 const os = require('os'),
 fs = require('fs'),
 path = require('path'),
@@ -9,12 +14,7 @@ chokidar = require('chokidar'),
 Q = require('q'),
 log = console.log.bind(console),
 supportedFiles=['mp3','wav'],
-mkdirp = require('mkdirp');
-dataDir = os.homedir() + path.sep +'.nodeplayerdata' + path.sep;
-mkdirp(dataDir, (err) => {
-    if (err) error(err);
-});
-const db = require('./dbService'),
+db = require('./dbService'),
 MSG_TYPE = {
   INIT: 'INIT',
   PROCESSING:'PROCESSING',
@@ -23,25 +23,21 @@ MSG_TYPE = {
   REMOVE: 'REMOVE',
   EMPTY: 'EMPTY',
   ERROR: 'ERROR'
-};
-let musicHome = os.homedir() + path.sep + "Music" + path.sep,
-diskWatcher = undefined,
-winRef = undefined,
-cacheing = false;
+},
 
 notifyUI = (msgType) => {
   winRef.send('musicUpdate', msgType);
   InitWatcher();
-};
+}
 
 removeTrackFromCache = (file) => {
   db.removeTrack(file);
   notifyUI(MSG_TYPE.REMOVE);
-};
+}
 
 InitWatcher = () => {
   if (!diskWatcher) {
-    diskWatcher = chokidar.watch(musicHome, {
+    diskWatcher = chokidar.watch(db.getLocalMusicHome(), {
         ignored: /[\/\\]\./,
         persistent: true,
         followSymlinks:false,
@@ -76,20 +72,19 @@ InitWatcher = () => {
     .on('error', (error) => { log('Error happened', error); })
     .on('ready', () => { log('Initial scan complete. Ready for changes.'); });
   }
-};
+}
 
- createAlbumArt = (bitmap, file) => {
+createAlbumArt = (bitmap, file) => {
   fs.exists(file, (exists) => {
-    if(!exists){
-      try{
+    if(!exists) {
+      try {
         fs.writeFileSync(file, bitmap);
-        log('******** File created ********');
-      }catch(err){
+      } catch(err) {
         log(err);
       }
     }
   });
-};
+}
 
 createAlbumData = (metadata, albumId, picture) => {
   return {
@@ -97,10 +92,10 @@ createAlbumData = (metadata, albumId, picture) => {
     'title': metadata.album,
     'picture': picture,
     'genre': metadata.genre,
-    'year': metadata.year,
+    'year': metadata.year || 'unknown',
     'artist': metadata.albumartist
   };
-};
+}
 
 createTrackData = (metadata, trackId, albumId, fileName, picture) => {
   return {
@@ -114,7 +109,7 @@ createTrackData = (metadata, trackId, albumId, fileName, picture) => {
     'fileName' : fileName,
     'picture': picture
   }
-};
+}
 
 createMusicData = (files) => {
   let musicData={'albums':[],'tracks':[]};
@@ -128,17 +123,11 @@ createMusicData = (files) => {
           let image = metadata.picture;
           let picture = 'img/album-placeholder.jpg';
           if (image.length > 0) {
-              picture = dataDir+metadata.album.replace(/\W/g,'')+"_"+metadata.year+"."+image[0].format;
+              picture = db.getDataDir()+metadata.album.replace(/\W/g,'')+"_"+metadata.year+"."+image[0].format;
               createAlbumArt(image[0].data, picture);
           }
           let existingAlbum = musicData['albums'].find((data) => {
-              if (metadata.albumartist && data.albumartist) {
-                return data.title === metadata.album
-                        && data.year === metadata.year
-                        && data.albumartist.toString() === metadata.albumartist.toString();
-              } else {
-                return data.title === metadata.album && data.year === metadata.year;
-              }
+            return data.title == metadata.album && data.year == metadata.year;
           });
           let trackId = uuid.v1();
           if(existingAlbum) {
@@ -184,22 +173,15 @@ processMetaData = (files, callFrom) => {
           cacheing = false;
           if (num > 0) notifyUI(MSG_TYPE.UPDATE);
           else if (callFrom == 'init')  notifyUI(MSG_TYPE.EMPTY);
-        },(err) => {notifyUI(MSG_TYPE.ERROR);});
-      },(err) => {notifyUI(MSG_TYPE.ERROR);});
-  },(err) => {notifyUI(MSG_TYPE.ERROR);});
-};
+        },(err) => {notifyUI(MSG_TYPE.ERROR)});
+      },(err) => {notifyUI(MSG_TYPE.ERROR)});
+  },(err) => {notifyUI(MSG_TYPE.ERROR)});
+}
 
-setMusicDir = (newDir) => {
-  db.getConfig().update({_id:'mainConfig'}, { musicHome: newDir}, {}, (err, numReplaced) => {
-    if(err) log(err);
-  });
-  musicHome = newDir;
-};
-
-const reSyncCache = () => {
+reSyncCache = () => {
   db.getTracks().then((tracks) => {
     let deleted = false;
-    tracks.forEach((track, index, tracks)=> {
+    tracks.forEach((track, index, tracks) => {
       fs.exists(track.fileName, (exists) => {
         if(!exists) {
           deleted = true;
@@ -208,51 +190,63 @@ const reSyncCache = () => {
         if (deleted && index === tracks.length-1) notifyUI(MSG_TYPE.REMOVE);
       });
     });
-  },(err) => {});
-  glob(musicHome+"**/*.mp3", null, (err, files) => {
-    if (!err && files.length > 1) processMetaData(files, 'init');
+  },(err) => {log(err)});
+  glob(db.getLocalMusicHome()+"**/*.mp3", null, (err, files) => {
+    if (!err && files.length > 0) processMetaData(files, 'init');
+    else notifyUI(MSG_TYPE.INIT);
   });
 }
+
+updtaeMusicCache = () => {
+  console.log(db.getLocalMusicHome());
+  glob(db.getLocalMusicHome()+"**/*.mp3", null, (err, files) => {
+    if (!err && files.length > 0) processMetaData(files, 'update');
+  });
+}
+
+updateMusicHome = (newPath) => {
+  if ((newPath + path.sep) != db.getLocalMusicHome()) {
+    db.updateMusicHome(newPath + path.sep).then((count) => {
+      diskWatcher.close();
+      diskWatcher = undefined;
+      updtaeMusicCache();
+    },(err)=>{log(err)});
+  }
+};
 
 exports.initMusicCache = () => {
   db.getTrackCount().then((count) => {
     if (count > 0) notifyUI(MSG_TYPE.INIT);
     else notifyUI(MSG_TYPE.PROCESSING);
-    db.getConfig().findOne({_id:'mainConfig'},(err, doc) => {
-      if (!err && doc) musicHome = doc.musicHome;
-      reSyncCache();
-    });
-  },(err) => {
-    notifyUI(MSG_TYPE.ERROR);
-  });
+    reSyncCache();
+  },(err) => {notifyUI(MSG_TYPE.ERROR)});
 };
 
-const updtaeMusicCache = () => {
-  db.getConfig().findOne({_id:'mainConfig'},(err, doc) => {
-    if (!err && doc) musicHome = doc.musicHome;
-    glob(musicHome+"**/*.mp3", null, (err, files) => {
-      if (!err && files.length > 0) processMetaData(files, 'update');
+exports.cleanMusicCache = () => {
+  db.cleanDB().then((num)=>{
+    fs.truncate(db.getDataDir()+'albums', 0, function() {
+      fs.truncate(db.getDataDir()+'tracks', 0, function() {
+        notifyUI(MSG_TYPE.EMPTY);
+        exports.initMusicCache();
+      });
     });
-  });
+  },(err) => {log(err)});
 };
 
-exports.updateMusicHome = (newPath) => {
-  if ((newPath + path.sep) !== musicHome) {
-    setMusicDir(newPath + path.sep);
-    diskWatcher.close();
-    diskWatcher = undefined;
-    updtaeMusicCache();
+exports.selectDirectory = function () {
+  let selected = dialogRef.showOpenDialog(winRef, {properties: ['openDirectory']});
+  if (selected) {
+    updateMusicHome(selected);
+    return selected;
   }
-};
-
-exports.getMusicDir = () => {
-  return musicHome;
-};
+  return db.getLocalMusicHome();;
+}
 
 exports.getDB = () => {
   return db;
 };
 
-exports.setWinRef = (win) => {
+exports.setMainProcessRefs = (win, dialog) => {
   winRef = win;
+  dialogRef = dialog;
 };

@@ -20,10 +20,6 @@ angular.module('skynetclient.albumsModule',[])
           $scope.tiles = data;
         });
       },function(err) {});
-      getTracks().then(function(data) {
-        let notRemoved = data.map(function(a){return a.fileName})
-        musicQueue.removeTracks(musicQueue.getTracks().filter(function(q){return notRemoved.indexOf(q) == -1}));
-      },function(err) {});
     });
   });
 

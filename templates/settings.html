@@ -19,7 +19,7 @@
   </md-card-title>
   <md-card-content layout="row" layout-align="start center">
     <md-input-container flex>
-      <input ng-model="musicHome" disabled aria-label="Current Music Directory">
+      <input ng-model="musicHome" disabled aria-label="Current Music Directory" md-colors="::{backgroundColor: '{{theme}}-primary-{{background1}}'}">
     </md-input-container>
     <md-input-container>
       <md-button type="button" class="md-icon-button" ng-click="selectDirectory()" style="padding:0px;margin-bottom:10px;" aria-label="Edit Music Directory">
@@ -28,4 +28,5 @@
     </md-input-container>
   </md-card-content>
 </md-card>
+<md-button type="button" class="md-raised md-warn" ng-click="clearCache()">Clear Music Cache</md-button>
 </div>

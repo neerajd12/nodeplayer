@@ -7,7 +7,7 @@
   "build": {
     "appId": "com.neerajdixit.nodeplayer",
     "linux": {
-      "category": "Audio",
+      "category": "Audio;AudioVideo;",
       "icon": "build/icon.png"
     },
     "win": {

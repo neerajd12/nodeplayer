@@ -1,23 +1,16 @@
 const fServ = require('electron').remote.require('./js/node_services/fileService');
-const {dialog} = require('electron').remote;
 const ipcR = require('electron').ipcRenderer;
+
 ipcR.on('musicUpdate', (event, message) => {
   angular.element(document.querySelector('[ng-controller="AppCtrl"]')).scope().postMsg(message);
 });
 /******************* Config ****************** */
 getMusicHome = () => {
-  return fServ.getDB().getMusicHome();
+  return fServ.getDB().getLocalMusicHome();
 };
 
 selectMusicHome = () => {
-  let selected = dialog.showOpenDialog({properties: ['openDirectory']});
-  if (selected) {
-    fServ.updateMusicHome(selected[0]);
-  }
-};
-
-getMusicDir = () => {
-  return fServ.getMusicDir();
+  return fServ.selectDirectory();
 };
 
 getTheme = () => {
@@ -121,4 +114,8 @@ removeAlbumFromPlaylist = (albumId, playlistId) => {
 };
 deletePlayList = (playlistId) => {
   fServ.getDB().deletePlayList(playlistId);
+};
+
+cleanMusicCache = () => {
+  fServ.cleanMusicCache();
 };

@@ -1,9 +1,13 @@
 'use strict';
 angular.module('skynetclient.settingsModule',[])
 .controller('settingsCtrl',function ($scope, $rootScope, $route) {
-  $scope.musicHome = getMusicDir();
+  $scope.musicHome = getMusicHome();
   $scope.selectDirectory = function() {
-    selectMusicHome();
-    $scope.musicHome = getMusicDir();
+    $scope.musicHome = selectMusicHome();
   }
+
+  $scope.clearCache = function() {
+    cleanMusicCache();
+  }
+
 });
