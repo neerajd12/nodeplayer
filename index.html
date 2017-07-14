@@ -16,23 +16,25 @@
         }
     </style>
   </head>
-  <body layout="row" ng-app="skynetclient" ng-controller="AppCtrl" ng-cloak md-theme="{{theme}}" md-theme-watch>
+  <body layout="row" ng-app="skynetclient" ng-controller="AppCtrl" ng-cloak md-theme="{{theme.theme}}" md-theme-watch>
     <div ng-show="initDone == -1" flex layout="column" tabIndex="-1" layout-fill layout-padding layout-align="center center">
       <md-progress-circular class="md-accent md-hue-3" md-mode="indeterminate"></md-progress-circular>
       <h1 class="md-subhead">Initialising</h1>
     </div>
-    <md-sidenav ng-show="initDone != -1" id="sideNav" md-whiteframe="15dp" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')">
+    <md-sidenav md-colors="::{backgroundColor: '{{theme.theme}}-primary-{{theme.background2}}'}" ng-show="initDone != -1" id="sideNav" md-whiteframe="15dp" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')">
       <md-toolbar class="md-tall md-hue-2" md-whiteframe="4dp" layout="row" layout-padding layout-margin layout-fill layout-align="start center">
         <img src="img/user_placeholder.png" class="avatar" alt="Profile Photo" />
       </md-toolbar>
-      <md-content id="sideNavContent">
-        <md-list>
-          <md-list-item  ng-repeat="item in navLinks" ng-click="item.action()" ng-class="{active: selectedPage.indexOf('{{ item.label | lowercase}}') > -1}">
-            <ng-md-icon icon="{{item.icon}}" style="fill:{{btnFill}};margin-right:10px;"></ng-md-icon>
-            <p>{{item.label}}</p>
-          </md-list-item>
-        </md-list>
-      </md-content>
+      <div ng-controller="navCtrl">
+        <md-content md-colors="::{backgroundColor: '{{theme.theme}}-primary-{{theme.background2}}'}" id="sideNavContent">
+          <md-list>
+            <md-list-item  ng-repeat="item in navLinks" ng-click="item.action()" ng-class="{active: selectedPage.indexOf('{{ item.label | lowercase}}') > -1}">
+              <ng-md-icon icon="{{item.icon}}" style="fill:{{theme.btnFill}};margin-right:10px;"></ng-md-icon>
+              <p>{{item.label}}</p>
+            </md-list-item>
+          </md-list>
+        </md-content>
+      </div>
     </md-sidenav>
     <div ng-show="initDone != -1" flex layout="column" tabIndex="-1" role="main">
       <md-toolbar layout="row" class="md-hue-2" md-whiteframe="4dp">
@@ -40,7 +42,7 @@
           <search-Ui></search-Ui>
         </div>
       </md-toolbar>
-      <md-content flex id="content">
+      <md-content flex id="content" md-colors="::{backgroundColor: '{{theme.theme}}-primary-{{theme.background2}}'}">
         <div ng-show="loading" flex layout-padding layout-fill layout="column" layout-align="center center">
           <md-progress-circular class="md-accent md-hue-3" md-mode="indeterminate"></md-progress-circular>
         </div>
@@ -59,6 +61,7 @@
     <script src="node_modules/svg-morpheus/compile/minified/svg-morpheus.js"></script>
     <script src="js/node_services/fileserviceWrapper.js"></script>
     <script src="js/directives/search.js"></script>
+    <script src="js/services/themeService.js"></script>
     <script src="js/services/musicService.js"></script>
     <script src="js/services/notificationsService.js"></script>
     <script src="js/controllers/player.js"></script>
@@ -67,6 +70,7 @@
     <script src="js/controllers/playlists.js"></script>
     <script src="js/controllers/details.js"></script>
     <script src="js/controllers/settings.js"></script>
+    <script src="js/controllers/navigation.js"></script>
     <script src="js/controllers/app.js"></script>
     <script src="js/index.js"></script>
   </body>

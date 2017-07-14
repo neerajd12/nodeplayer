@@ -1,8 +1,8 @@
 <div layout="row" layout-sm="column" layout-xs="column" layout-fill ng-controller="detailsViewCtrl">
-  <div id="noDetails" class="mainContent" md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}" ng-if="!coverData.title" flex layout-padding layout-fill layout="column" layout-align="center center">
+  <div id="noDetails" class="mainContent" md-colors="::{backgroundColor: '{{theme.theme}}-primary-{{theme.background2}}'}" ng-if="!coverData.title" flex layout-padding layout-fill layout="column" layout-align="center center">
     <h1 class="md-display-1">Nothing Here</h1>
   </div>
-  <div id="detailsCover" md-colors="::{backgroundColor: '{{theme}}-primary-{{background1}}'}" ng-if="coverData.title" layout="column" layout-sm="row" layout-xs="column" layout-align="start center" layout-align-sm="start end" md-whiteframe="15dp">
+  <div id="detailsCover" md-colors="::{backgroundColor: '{{theme.theme}}-primary-{{theme.background1}}'}" ng-if="coverData.title" layout="column" layout-sm="row" layout-xs="column" layout-align="start center" layout-align-sm="start end" md-whiteframe="15dp">
     <md-card class="albumImgCard" layout-align="center center" md-whiteframe="15dp">
       <img ng-if="art.length < 2" src="img/album-placeholder.jpg" ng-src="{{art[0]}}" class="md-card-image" alt="album art">
       <div ng-if="art.length === 2" layout="column" style="height:100%;width:100%;">
@@ -59,7 +59,7 @@
       </div>
     </div>
   </div>
-  <md-virtual-repeat-container md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}" class="parentTag" id="detailsList" ng-if="coverData.title && tracks" flex layout="column" md-on-demand>
+  <md-virtual-repeat-container md-colors="::{backgroundColor: '{{theme.theme}}-primary-{{theme.background2}}'}" class="parentTag" id="detailsList" ng-if="coverData.title && tracks" flex layout="column" md-on-demand>
    <md-list flex>
      <div md-virtual-repeat="track in tracks" md-on-demand id="{{track._id}}" flex layout="column">
        <md-list-item class="md-3-line" ng-click="showGridBottomSheet($index)" ng-dblclick="listItemClick('play',track._id)" ng-class="{active: track.fileName == trackPlaying, highlightSearched: track.title == searchedSong}">

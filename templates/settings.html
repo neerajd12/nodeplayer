@@ -1,17 +1,17 @@
-<div flex layout-fill layout-padding layout="column" md-colors="::{backgroundColor: '{{theme}}-primary-{{background2}}'}">
-  <md-card md-colors="::{backgroundColor: '{{theme}}-primary-{{background1}}'}" >
+<div flex layout-fill layout-padding layout="column" md-colors="::{backgroundColor: '{{theme.theme}}-primary-{{theme.background2}}'}">
+  <md-card md-colors="::{backgroundColor: '{{theme.theme}}-primary-{{theme.background1}}'}" >
    <md-card-title>
      <md-card-title-text>
        <span class="md-headline">Theme</span>
      </md-card-title-text>
    </md-card-title>
    <md-card-content>
-     <md-select ng-model="theme" ng-change="applyTheme(theme)" aria-label="theme slect drop down">
+     <md-select ng-model="currentTheme" ng-change="applyTheme(currentTheme)" aria-label="theme slect drop down">
         <md-option ng-repeat="option in themes" value="{{option}}">{{option}}</md-option>
      </md-select>
    </md-card-content>
  </md-card>
- <md-card md-colors="::{backgroundColor: '{{theme}}-primary-{{background1}}'}" >
+ <md-card md-colors="::{backgroundColor: '{{theme.theme}}-primary-{{theme.background1}}'}" >
   <md-card-title>
     <md-card-title-text>
       <span class="md-headline">Music Directory</span>
@@ -19,11 +19,11 @@
   </md-card-title>
   <md-card-content layout="row" layout-align="start center">
     <md-input-container flex>
-      <input ng-model="musicHome" disabled aria-label="Current Music Directory" md-colors="::{backgroundColor: '{{theme}}-primary-{{background1}}'}">
+      <input ng-model="musicHome" disabled aria-label="Current Music Directory" md-colors="::{backgroundColor: '{{theme.theme}}-primary-{{theme.background1}}'}">
     </md-input-container>
     <md-input-container>
       <md-button type="button" class="md-icon-button" ng-click="selectDirectory()" style="padding:0px;margin-bottom:10px;" aria-label="Edit Music Directory">
-        <ng-md-icon icon="edit" style="fill:{{btnFill}}"></ng-md-icon>
+        <ng-md-icon icon="edit" style="fill:{{theme.btnFill}}"></ng-md-icon>
       </md-button>
     </md-input-container>
   </md-card-content>

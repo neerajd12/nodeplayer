@@ -17,8 +17,8 @@ getTheme = () => {
   return fServ.getDB().getTheme();
 };
 
-updateTheme = (oldTheme, newTheme) => {
-  return fServ.getDB().updateTheme(oldTheme, newTheme);
+updateTheme = (newTheme) => {
+  return fServ.getDB().updateTheme(newTheme);
 };
 
 getQueue = () => {

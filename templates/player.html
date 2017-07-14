@@ -1,4 +1,4 @@
-<div layout="column" id="mainPlayer" ng-controller="playerCtrl">
+<div md-colors="::{backgroundColor: '{{theme.theme}}-primary-800'}" layout="column" id="mainPlayer" ng-controller="playerCtrl">
   <div id="musicPlayerDiv" layout="row" layout-align="space-between center" layout-padding layout-fill hide-xs>
     <img ng-src="{{track.picture}}" src="img/album-placeholder.jpg" ng-click="viewMode.toggle()" style="height:60px;width:60px;cursor:pointer;padding:2px;" alt="track Photo" />
     <md-button ng-click="playMode.setView(playMode.value)" aria-label="{{playMode.value}}" class="md-icon-button">

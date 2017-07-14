@@ -78,7 +78,7 @@ exports.getTheme = () => {
   });
   return deferred.promise;
 };
-exports.updateTheme = (oldTheme, newTheme) => {
+exports.updateTheme = (newTheme) => {
   let deferred = Q.defer();
   config.update({_id:'mainConfig'}, { $set: {theme:newTheme} }, (err, num) => {
     if (err) { console.log(err);deferred.reject(err);}

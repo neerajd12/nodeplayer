@@ -68,18 +68,21 @@ angular.module('skynetclient.playlistsModule',[])
     }
   };
 
-  if ($route.current.params.playlistId === 'favorites') {
-    $scope.coverData.actions[2].visible = false;
-    $scope.coverData.actions[3].visible = false;
-  }
   $scope.coverData.actions[2].label = 'Delete Playlist';
   $scope.coverData.actions[2].icon = 'delete';
   $scope.coverData.actions[2].color = 'md-warn';
   $scope.coverData.actions[2].action = deleteFromPlaylist;
-
   $scope.trackActions[2].label = 'Delete from Playlist';
   $scope.trackActions[2].icon = 'delete';
   $scope.trackActions[2].color = 'md-warn';
   $scope.trackActions[2].action = deleteFromPlaylist;
+
+  if ($route.current.params.playlistId === 'favorites') {
+    $scope.coverData.actions[3].visible = false;
+    $scope.coverData.actions[2].label = 'Clear Playlist';
+    $scope.coverData.actions[2].icon = 'clear_all';
+    $scope.coverData.actions[2].color = 'md-warn';
+    $scope.coverData.actions[2].action = deleteFromPlaylist;
+  }
 
 });
