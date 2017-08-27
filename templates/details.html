@@ -41,18 +41,18 @@
         <p class="md-subhead" style="line-height: 0px;">{{coverData.title}}</p>
       </div>
       <div layout="column" layout-align="center start">
-        <div ng-repeat="item in coverData.info">
+        <div ng-repeat="item in coverData.info track by $index">
           <div layout="row" layout-align="center space-between">
             <small>{{item.title}}&nbsp;:&nbsp;</small>
             <div layout="column">
               <small ng-if="!isArray(item.val)">{{item.val}}</small>
-              <small ng-if="isArray(item.val)" ng-repeat="v in item.val">{{v}}</small>
+              <small ng-if="isArray(item.val)" ng-repeat="v in item.val track by $index">{{v}}</small>
             </div>
           </div>
         </div>
       </div>
       <div layout="row" layout-align="center center">
-        <md-button ng-repeat="item in coverData.actions" aria-label="{{item.label}}" class="md-fab md-mini md-raised {{item.color}}" ng-click="item.action(trackData)" ng-if="item.visible">
+        <md-button ng-repeat="item in coverData.actions track by $index" aria-label="{{item.label}}" class="md-fab md-mini md-raised {{item.color}}" ng-click="item.action(trackData)" ng-if="item.visible">
           <ng-md-icon icon="{{item.icon}}" style="fill:{{item.fill}}"></ng-md-icon>
           <md-tooltip>{{item.label}}</md-tooltip>
         </md-button>
@@ -61,21 +61,21 @@
   </div>
   <md-virtual-repeat-container md-colors="::{backgroundColor: '{{theme.theme}}-primary-{{theme.background2}}'}" class="parentTag" id="detailsList" ng-if="coverData.title && tracks" flex layout="column" md-on-demand>
    <md-list flex>
-     <div md-virtual-repeat="track in tracks" md-on-demand id="{{track._id}}" flex layout="column">
-       <md-list-item class="md-3-line" ng-click="showGridBottomSheet($index)" ng-dblclick="listItemClick('play',track._id)" ng-class="{active: track.fileName == trackPlaying, highlightSearched: track.title == searchedSong}">
-         <img alt="{{track.title}}" data-ng-src="{{track.picture}}" class="md-avatar"/>
+     <div md-virtual-repeat="trk in tracks" md-on-demand id="{{trk._id}}" flex layout="column">
+       <md-list-item class="md-3-line" ng-click="showGridBottomSheet($index)" ng-dblclick="listItemClick('play',trk._id)" ng-class="{active: trk.fileName == trackPlaying, highlightSearched: trk.title == searchedSong}">
+         <img alt="{{trk.title}}" data-ng-src="{{trk.picture}}" class="md-avatar"/>
          <div class="md-list-item-text" layout="column" layout-wrap>
-          <h3 style="color:inherit">{{track.title}}</h3>
-          <h4 style="color:inherit">{{track.artist.toString()}}</h4>
-          <p style="color:inherit">{{track.duration}}</p>
+          <h3 style="color:inherit">{{trk.title}}</h3>
+          <h4 style="color:inherit">{{trk.artist.toString()}}</h4>
+          <p style="color:inherit">{{trk.duration}}</p>
          </div>
-         <md-button aria-label="track fav button" class="md-icon-button md-secondary {{trackActions.color}}"  ng-click="toggleFav(track, track._id)">
-           <ng-md-icon icon="{{track.favIcon || favorite_border}}" style="fill:{{trackActions[3].fill}}"></ng-md-icon>
+         <md-button aria-label="trk fav button" class="md-icon-button md-secondary {{trackActions.color}}"  ng-click="toggleFav(trk, trk._id)">
+           <ng-md-icon icon="{{trk.favIcon || favorite_border}}" style="fill:{{trackActions[3].fill}}"></ng-md-icon>
          </md-button>
          <md-divider ng-if="!$last"></md-divider>
        </md-list-item>
-       <div layout="row" layout-align="center center" ng-show="clickedTrackId === track._id" class="track_extra_btn_sheet">
-         <md-button ng-repeat="item in trackActions" aria-label="{{item.label}}" class="md-fab md-mini md-raised {{item.color}}" ng-click="item.action(track, track._id)" ng-if="item.visible">
+       <div layout="row" layout-align="center center" ng-show="clickedTrackId === trk._id" class="track_extra_btn_sheet">
+         <md-button ng-repeat="item in trackActions track by $index" aria-label="{{item.label}}" class="md-fab md-mini md-raised {{item.color}}" ng-click="item.action(trk, trk._id)" ng-if="item.visible">
            <ng-md-icon icon="{{item.icon}}" style="fill:{{item.fill}}" options='{"duration": 100}'></ng-md-icon>
            <md-tooltip>{{item.label}}</md-tooltip>
          </md-button>

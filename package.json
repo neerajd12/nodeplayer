@@ -42,7 +42,9 @@
     "watchjs": "0.0.0"
   },
   "devDependencies": {
+    "chai": "^4.1.0",
+    "electron": "^1.4.12",
     "electron-builder": "^10.6.1",
-    "electron": "^1.4.12"
+    "mocha": "^3.4.2"
   }
 }
